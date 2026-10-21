@@ -13,7 +13,7 @@ Weitere Links:
 Alternativ (funktioniert sofort, ohne GitHub Pages):
 https://raw.githack.com/realJonified/Brawl-Stars/ccr-3aefd39f-tq7u8o/index.html
 
-> Damit der erste Link funktioniert, muss GitHub Pages einmal aktiviert werden:
+> Damit der github.io-Link funktioniert, muss GitHub Pages einmal aktiviert werden:
 > **Settings → Pages → Source: „Deploy from a branch“ → Branch auswählen → Ordner `/ (root)` → Save.**
 > Nach ca. 1 Minute ist das Spiel unter dem Link online.
 
