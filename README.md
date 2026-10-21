@@ -33,7 +33,7 @@ https://raw.githack.com/realJonified/Brawl-Stars/ccr-3aefd39f-tq7u8o/index.html
 | Boom | Werfer | Dynamit über Wände | Riesenfass |
 | Frost | Scharfschützin | Eiskristall, mehr Schaden auf Distanz | Eissturm, verlangsamt |
 
-Querformat (auf dem Handy einfach quer halten), Trophäenstraße mit freischaltbaren Brawlern, Münzen und Power-Level-Upgrades (1–11), Spielersuche und VS-Bildschirm, Gadgets ab Power-Level 7, Emotes, leichte Bots bei wenigen Trophäen (werden mit mehr Trophäen stärker). 3 Munitionsbalken, Super lädt sich durch Treffer auf, Leben regeneriert sich nach 3 Sekunden ohne Kampf, Büsche verstecken dich, Trophäen pro Brawler (werden im Browser gespeichert).
+Lobby im Brawl-Stars-Stil mit Shop, Quests, Täglichen Siegen, Spieler-Level/XP und eigenem Namen, Map-Rotation (jede Stunde neue Karten), lila Holz-Look mit Kisten und hohem Gras, Querformat (auf dem Handy einfach quer halten), Trophäenstraße mit freischaltbaren Brawlern, Münzen und Power-Level-Upgrades (1–11), Spielersuche und VS-Bildschirm, Gadgets ab Power-Level 7, Emotes, leichte Bots bei wenigen Trophäen (werden mit mehr Trophäen stärker). 3 Munitionsbalken, Super lädt sich durch Treffer auf, Leben regeneriert sich nach 3 Sekunden ohne Kampf, Büsche verstecken dich, Trophäen pro Brawler (werden im Browser gespeichert).
 
 ## Steuerung
 

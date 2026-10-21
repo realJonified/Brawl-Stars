@@ -29,40 +29,97 @@
   .trophy { width: 1.4em; height: 1.4em; flex-shrink: 0; }
   .pill { background: rgba(0,0,0,.45); border: .18rem solid #000; border-radius: .7rem; padding: .25rem .8rem .25rem .45rem; font-size: 1.15rem; display: flex; align-items: center; gap: .4rem; }
 
-  /* ---------- Lobby ---------- */
-  #lobby { background: radial-gradient(ellipse at 50% 40%, #3d7bff 0%, #1d3fb8 45%, #0d1b4c 100%); overflow: hidden; }
-  #lobby::before { content: ''; position: absolute; inset: -60%; background: repeating-conic-gradient(from 0deg, rgba(255,255,255,.05) 0 10deg, transparent 10deg 20deg); animation: spin 60s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  @media (prefers-reduced-motion: reduce) { #lobby::before { animation: none; } }
-  .profile { position: absolute; top: .7rem; left: .7rem; display: flex; gap: .5rem; align-items: center; z-index: 2; }
-  .avatar { width: 3.3rem; height: 3.3rem; border: .2rem solid #000; border-radius: .6rem; background: linear-gradient(#5cb8ff, #2a6ff0); overflow: hidden; }
-  .avatar canvas { width: 100%; height: 100%; display: block; }
-  .road { display: flex; flex-direction: column; gap: .2rem; }
-  .road .row { display: flex; align-items: center; gap: .35rem; font-size: 1.25rem; }
-  .bar { width: 10rem; height: .8rem; background: #000; border-radius: .4rem; padding: .12rem; }
-  .bar i { display: block; height: 100%; background: linear-gradient(#ffe45c, #ffb800); border-radius: .3rem; }
-  .road small { font-size: .75rem; opacity: .9; }
-  .logo { position: absolute; top: .7rem; left: 50%; transform: translateX(-50%); text-align: center; z-index: 2; line-height: 1; }
-  .logo b { font-size: 1.7rem; display: block; color: #ffe45c; font-weight: normal; }
-  .logo span { font-size: .8rem; }
-  .currencies { position: absolute; top: .7rem; right: .7rem; display: flex; gap: .45rem; z-index: 2; }
-  .coin { width: 1.3em; height: 1.3em; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fff6a8, #ffc400 45%, #c98a00); border: .12rem solid #000; flex-shrink: 0; }
-  .leftmenu { position: absolute; left: .7rem; top: 55%; transform: translateY(-50%); display: flex; flex-direction: column; gap: .6rem; z-index: 2; }
-  .menuBtn { width: 5.6rem; padding: .4rem .2rem; font-size: .95rem; display: flex; flex-direction: column; align-items: center; gap: .1rem; }
-  .menuBtn .ic { font-size: 1.7rem; line-height: 1.1; }
-  .badge { position: absolute; top: -.5rem; right: -.5rem; background: #ff3b3b; border: .15rem solid #000; border-radius: 1rem; font-size: .8rem; padding: 0 .4rem; }
-  #previewWrap { position: absolute; left: 50%; top: 54%; transform: translate(-50%, -50%); text-align: center; z-index: 1; display: flex; flex-direction: column; align-items: center; }
-  #preview { width: 14rem; height: 14rem; }
-  #brawlerName { font-size: 2rem; margin-top: -1.2rem; display: flex; align-items: center; gap: .5rem; }
-  .lvl { display: inline-grid; place-items: center; min-width: 1.8rem; height: 1.8rem; padding: 0 .3rem; border-radius: .5rem; background: linear-gradient(#c58bff, #8040e8); border: .15rem solid #000; font-size: 1rem; }
-  #brawlerTrophies { font-size: 1.1rem; display: inline-flex; align-items: center; gap: .3rem; background: rgba(0,0,0,.4); padding: .1rem .7rem; border-radius: .6rem; border: .15rem solid #000; margin-top: .2rem; }
-  .playArea { position: absolute; right: .7rem; bottom: .8rem; display: flex; gap: .6rem; align-items: stretch; z-index: 2; }
-  #modeBtn { display: flex; align-items: center; gap: .5rem; text-align: left; }
-  #modeBtn small { display: block; font-size: .75rem; opacity: .9; }
-  .modeIcon { width: 2.4rem; height: 2.4rem; border-radius: .5rem; border: .18rem solid #000; display: grid; place-items: center; font-size: 1.3rem; flex-shrink: 0; }
-  #playBtn { font-size: 2.2rem; padding: .4rem 2.2rem; }
-  #help { font-family: Arial, sans-serif; font-weight: bold; font-size: .7rem; opacity: .8; position: absolute; left: .8rem; bottom: .8rem; z-index: 2; max-width: 40%; }
-
+  /* ---------- Lobby (a room with the brawler on stage, menus around it) ---------- */
+  #lobby { background: #0f3c36; overflow: hidden; }
+  .room { position: absolute; inset: 0; pointer-events: none; }
+  .wall { position: absolute; left: 0; right: 0; top: 0; height: 66%; background:
+      repeating-linear-gradient(90deg, rgba(255,255,255,.035) 0 2.2rem, transparent 2.2rem 4.4rem),
+      radial-gradient(ellipse 45% 70% at 50% 45%, #ee5b93, #c13470 60%, #8d2156); }
+  .door { position: absolute; left: 50%; top: 12%; width: 12rem; height: 54%; transform: translateX(-50%); border-radius: 6rem 6rem 0 0;
+      background: radial-gradient(ellipse at 50% 35%, #fff0f6, #ffa6c9 55%, #d4568e); border: .5rem solid #6e1841; border-bottom: none; }
+  .door::after { content: ''; position: absolute; left: 50%; top: 8%; width: 6rem; height: 6rem; transform: translateX(-50%); border-radius: 50%;
+      background: repeating-conic-gradient(from 0deg, rgba(110,24,65,.5) 0 6deg, transparent 6deg 30deg); }
+  .pillar { position: absolute; top: 24%; width: 10rem; height: 48%; background: linear-gradient(#24806f, #145247); border-radius: 1.2rem 1.2rem 0 0; border: .25rem solid #0b302a; border-bottom: none; }
+  .pillar.l { left: 4%; } .pillar.r { right: 4%; }
+  .floor { position: absolute; left: 0; right: 0; top: 66%; bottom: 0; background:
+      radial-gradient(ellipse 30% 45% at 50% 35%, rgba(150,255,225,.4), transparent 70%),
+      repeating-linear-gradient(90deg, rgba(0,0,0,.08) 0 .2rem, transparent .2rem 4rem),
+      linear-gradient(#22786a, #0f3f39); border-top: .3rem solid #0b302a; }
+  .tile { background: linear-gradient(#56658a, #313c5c); border: .2rem solid #0b1020; border-radius: .6rem; box-shadow: 0 .25rem 0 #0b1020; color: #fff; font-family: inherit; cursor: pointer; position: relative; }
+  .tile:active { transform: translateY(.15rem); box-shadow: 0 .1rem 0 #0b1020; }
+  .tile:focus-visible { outline: .2rem solid #fff; }
+  .tile.yellow { background: linear-gradient(#ffe45c, #f5b400); }
+  .topLeft { position: absolute; top: .6rem; left: .7rem; display: flex; gap: .5rem; z-index: 2; }
+  .profile { display: flex; align-items: center; gap: .4rem; padding: .25rem .6rem .25rem .3rem; }
+  .profile .pic { width: 2.8rem; height: 2.8rem; border-radius: .4rem; border: .15rem solid #000; background: linear-gradient(#ff7ab8, #b03a78); overflow: hidden; display: block; }
+  .profile .pic canvas { width: 100%; height: 100%; display: block; }
+  .shield { position: absolute; top: -.45rem; left: -.45rem; width: 1.7rem; height: 1.9rem; display: grid; place-items: center; font-size: .85rem;
+      background: linear-gradient(#5d8bff, #2a4fc8); border: .15rem solid #000; clip-path: polygon(50% 0, 100% 18%, 100% 70%, 50% 100%, 0 70%, 0 18%); }
+  .pname { font-size: 1.2rem; color: #ff8fd0; max-width: 9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .trophyBox { display: flex; flex-direction: column; justify-content: center; gap: .15rem; padding: .25rem .7rem; min-width: 11rem; }
+  .trophyBox .row { display: flex; align-items: center; gap: .3rem; font-size: 1.4rem; color: #ffd23f; }
+  .bar { height: .7rem; background: #000; border-radius: .35rem; padding: .1rem; }
+  .bar i { display: block; height: 100%; background: linear-gradient(#ffb15c, #f07a12); border-radius: .25rem; }
+  .trophyBox small { font-size: .62rem; opacity: .9; white-space: nowrap; }
+  .logo { position: absolute; top: .6rem; left: 50%; transform: translateX(-50%); text-align: center; z-index: 2; line-height: 1; }
+  .logo b { font-size: 1.5rem; display: block; color: #ffe45c; font-weight: normal; }
+  .logo span { font-size: .75rem; }
+  .currencies { position: absolute; top: .6rem; right: .7rem; display: flex; gap: .4rem; z-index: 2; }
+  .pill { background: rgba(0,0,0,.55); border: .15rem solid #000; border-radius: .5rem; padding: .2rem .7rem .2rem .35rem; font-size: 1.15rem; display: flex; align-items: center; gap: .35rem; }
+  .coin { width: 1.3em; height: 1.3em; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fff6a8, #ffc400 45%, #c98a00); border: .12rem solid #000; flex-shrink: 0; display: inline-block; vertical-align: middle; }
+  .gemI { width: 1.25em; height: 1.25em; background: radial-gradient(circle at 35% 30%, #d9ffb0, #4fd23f 50%, #1f8a26); border: .12rem solid #000; flex-shrink: 0; display: inline-block; vertical-align: middle;
+      clip-path: polygon(50% 0, 100% 35%, 80% 100%, 20% 100%, 0 35%); }
+  .leftCol, .rightCol { position: absolute; top: 5.8rem; display: flex; flex-direction: column; gap: .7rem; z-index: 2; }
+  .leftCol { left: .9rem; } .rightCol { right: .9rem; }
+  .navBtn { width: 5.6rem; height: 4rem; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: .95rem; gap: .05rem; }
+  .navBtn .ic { font-size: 1.7rem; line-height: 1; }
+  .newTag { position: absolute; top: -.45rem; right: -.7rem; background: #e8302f; border: .15rem solid #000; font-size: .65rem; padding: .05rem .3rem; transform: rotate(8deg); }
+  .countBadge { position: absolute; top: -.5rem; right: -.5rem; background: #e8302f; border: .15rem solid #000; border-radius: 1rem; min-width: 1.4rem; padding: 0 .25rem; font-size: .8rem; text-align: center; }
+  .bottomLeft { position: absolute; left: .9rem; bottom: .8rem; display: flex; gap: .6rem; align-items: flex-end; z-index: 2; }
+  .xpBox { padding: .3rem .6rem; display: flex; align-items: center; gap: .4rem; font-size: 1rem; }
+  .xpBox .xp { background: #fff; color: #000; padding: 0 .25rem; border-radius: .25rem; font-size: .9rem; text-shadow: none; }
+  .xpBox .bar { width: 6rem; }
+  .xpBox .bar i { background: linear-gradient(#ffe45c, #f5b400); }
+  #previewWrap { position: absolute; left: 50%; top: 53%; transform: translate(-50%, -50%); text-align: center; z-index: 1; display: flex; flex-direction: column; align-items: center; }
+  .statRow { display: flex; align-items: center; gap: .3rem; }
+  #brawlerTrophies { font-size: 1.15rem; display: inline-flex; align-items: center; gap: .3rem; background: rgba(0,0,0,.55); padding: .1rem .7rem; border-radius: .5rem; border: .15rem solid #000; }
+  .lvl { display: inline-grid; place-items: center; min-width: 1.9rem; height: 1.9rem; padding: 0 .3rem; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #ff8ce8, #b324b8); border: .18rem solid #000; font-size: 1.05rem; }
+  #preview { width: 13rem; height: 13rem; }
+  #brawlerName { font-size: 1.3rem; margin-top: -1.4rem; }
+  #help { font-family: Arial, sans-serif; font-weight: bold; font-size: .62rem; opacity: .85; position: absolute; left: 50%; transform: translateX(-50%); bottom: 5.2rem; z-index: 2; white-space: nowrap; }
+  .playArea { position: absolute; right: .7rem; bottom: .8rem; display: flex; gap: .6rem; align-items: flex-end; z-index: 2; }
+  #modeBox { display: flex; align-items: center; gap: .5rem; text-align: left; padding: .35rem .8rem .35rem .45rem; background: linear-gradient(#3a3f55, #1f2232); min-width: 15rem; }
+  #modeBox .mInfo { display: flex; flex-direction: column; line-height: 1.1; }
+  #modeBox .mTimer { font-size: .65rem; opacity: .85; font-family: Arial, sans-serif; font-weight: bold; }
+  #modeName { font-size: 1.3rem; }
+  #mapName { font-size: .9rem; color: #7dff6a; }
+  .modeIcon { width: 2.6rem; height: 2.6rem; border-radius: .5rem; border: .18rem solid #000; display: grid; place-items: center; font-size: 1.4rem; flex-shrink: 0; }
+  .playCol { display: flex; flex-direction: column; gap: .5rem; align-items: stretch; }
+  .daily { background: linear-gradient(#2c62e8, #1a3da8); border: .2rem solid #0b1020; border-radius: .6rem; padding: .25rem .4rem .35rem; text-align: center; }
+  .daily .dt { font-size: .85rem; color: #ffd23f; }
+  .daily .slots { display: flex; gap: .2rem; }
+  .daily .slot { width: 2rem; height: 2rem; border-radius: .35rem; background: #3f79ff; border: .12rem solid #0b1020; display: grid; place-items: center; font-size: .9rem; }
+  .daily .slot.done { background: #1d2a55; opacity: .8; }
+  .daily .slot.next { outline: .15rem solid #ffe45c; }
+  #playBtn { font-size: 2.2rem; padding: .35rem 2rem; }
+  .offers, .quests { display: flex; gap: .8rem; justify-content: center; flex-wrap: wrap; align-items: stretch; }
+  .offer { width: 12rem; background: linear-gradient(#2c4fd8, #1a2f8f); border: .2rem solid #000; border-radius: .8rem; padding: .7rem; text-align: center; display: flex; flex-direction: column; gap: .4rem; align-items: center; box-shadow: 0 .25rem 0 #000; }
+  .offer .big { font-size: 2rem; display: flex; align-items: center; gap: .4rem; }
+  .offer p { font-family: Arial, sans-serif; font-weight: bold; font-size: .75rem; opacity: .9; }
+  .offer .btn { font-size: 1rem; display: flex; align-items: center; gap: .3rem; }
+  .quest { width: 16rem; background: linear-gradient(#ffe45c, #f5b400); color: #000; border: .2rem solid #000; border-radius: .8rem; padding: .7rem; display: flex; flex-direction: column; gap: .4rem; box-shadow: 0 .25rem 0 #000; }
+  .quest .qt { font-size: 1.1rem; color: #fff; }
+  .quest .bar { height: 1.1rem; }
+  .quest .bar i { background: linear-gradient(#7dff7a, #22b53a); }
+  .quest .qr { font-family: Arial, sans-serif; font-weight: bold; font-size: .8rem; display: flex; justify-content: space-between; align-items: center; }
+  .news { max-width: 36rem; margin: 0 auto; display: flex; flex-direction: column; gap: .6rem; font-family: Arial, sans-serif; font-weight: bold; font-size: .85rem; line-height: 1.4; }
+  .news p { background: rgba(255,255,255,.08); border: .15rem solid #000; border-radius: .6rem; padding: .5rem .8rem; }
+  .news b { font-family: 'Lilita One', 'Arial Black', sans-serif; font-weight: normal; font-size: 1rem; color: #ffe45c; display: block; }
+  .profileForm { display: flex; flex-direction: column; gap: .6rem; align-items: center; }
+  .profileForm label { font-size: 1.1rem; }
+  #nameInput { font-family: inherit; font-size: 1.4rem; padding: .4rem .7rem; border-radius: .5rem; border: .2rem solid #000; width: 16rem; text-align: center; user-select: text; -webkit-user-select: text; color: #000; background: #fff; }
+  .pstats { font-family: Arial, sans-serif; font-weight: bold; font-size: .85rem; opacity: .9; text-align: center; line-height: 1.6; }
+  .mapLine { color: #7dff6a; font-family: 'Lilita One', 'Arial Black', sans-serif !important; font-weight: normal !important; font-size: .95rem !important; }
   /* ---------- Overlays ---------- */
   .overlay { background: rgba(5,10,40,.96); z-index: 10; padding: .8rem 1rem; }
   .overlay.show { display: flex; flex-direction: column; }
@@ -108,6 +165,8 @@
   #resSub { font-size: 1.3rem; }
   .rewards { display: flex; gap: .8rem; margin: .4rem 0 .8rem; }
   .rewards > div { font-size: 2rem; display: inline-flex; align-items: center; gap: .5rem; background: rgba(0,0,0,.4); border: .18rem solid #000; border-radius: .8rem; padding: .3rem 1.1rem; }
+  #resExtra { font-size: .95rem; color: #9dff9d; display: flex; flex-direction: column; gap: .2rem; margin-bottom: .6rem; }
+  .xpTag { background: #fff; color: #000; border-radius: .3rem; padding: 0 .3rem; font-size: 1.2rem; text-shadow: none; }
   #exitBtn { position: absolute; top: .5rem; left: .5rem; width: 2.5rem; height: 2.5rem; padding: 0; font-size: 1.1rem; z-index: 5; display: none; }
 </style>
 </head>
@@ -118,9 +177,10 @@
 
 <!-- Lobby -->
 <div id="lobby" class="screen show">
-  <div class="profile">
-    <div class="avatar"><canvas id="avatar" width="120" height="120"></canvas></div>
-    <div class="road txt">
+  <div class="room"><div class="wall"></div><div class="door"></div><div class="pillar l"></div><div class="pillar r"></div><div class="floor"></div></div>
+  <div class="topLeft">
+    <button id="profileBtn" class="tile profile txt"><span class="shield txt" id="plevel">1</span><span class="pic"><canvas id="avatar" width="120" height="120"></canvas></span><span class="pname" id="pname">Spieler</span></button>
+    <div class="tile trophyBox txt">
       <div class="row"><span class="trophyIcon"></span><span id="totalTrophies">0</span></div>
       <div class="bar"><i id="roadBar" style="width:0"></i></div>
       <small id="roadTxt"></small>
@@ -129,20 +189,70 @@
   <div class="logo txt"><b>BRAWL ARENA</b><span>created by Jonified</span></div>
   <div class="currencies">
     <div class="pill txt"><span class="coin"></span><span id="coins">0</span></div>
+    <div class="pill txt"><span class="gemI"></span><span id="gems">0</span></div>
   </div>
-  <div class="leftmenu">
-    <button id="brawlersBtn" class="btn btn-purple txt menuBtn"><span class="ic">🥊</span>BRAWLER<span id="upBadge" class="badge" hidden>!</span></button>
-    <button id="modeBtn2" class="btn btn-blue txt menuBtn"><span class="ic">📅</span>EVENTS</button>
+  <div class="leftCol">
+    <button id="shopBtn" class="tile yellow navBtn txt"><span class="ic">🛒</span>SHOP<span id="shopTag" class="newTag" hidden>GRATIS</span></button>
+    <button id="brawlersBtn" class="tile navBtn txt"><span class="ic">🥊</span>BRAWLER<span id="upBadge" class="countBadge" hidden>1</span></button>
+  </div>
+  <div class="rightCol">
+    <button id="newsBtn" class="tile navBtn txt"><span class="ic">📰</span>NEWS<span id="newsTag" class="countBadge" hidden>!</span></button>
+    <button id="profileBtn2" class="tile navBtn txt"><span class="ic">🙂</span>PROFIL</button>
   </div>
   <div id="previewWrap">
-    <canvas id="preview" width="560" height="560"></canvas>
-    <div id="brawlerName" class="txt"><span class="lvl" id="brawlerLvl">1</span><span id="brawlerNameTxt">KIRA</span></div>
-    <div id="brawlerTrophies" class="txt"></div>
+    <div class="statRow"><div id="brawlerTrophies" class="txt"></div><span class="lvl txt" id="brawlerLvl">1</span></div>
+    <canvas id="preview" width="520" height="520"></canvas>
+    <div id="brawlerName" class="txt">KIRA</div>
   </div>
-  <div id="help">PC: WASD bewegen · Maus zielen · Linksklick angreifen · Rechtsklick / Leertaste = SUPER · F = Gadget · T = Emote</div>
+  <div class="bottomLeft">
+    <div class="tile xpBox txt"><span class="xp">XP</span><div class="bar"><i id="xpBar" style="width:0"></i></div><span id="xpTxt">0/100</span></div>
+    <button id="questBtn" class="tile yellow navBtn txt"><span class="ic">📋</span>QUESTS<span id="questTag" class="newTag" hidden>FERTIG</span></button>
+  </div>
   <div class="playArea">
-    <button id="modeBtn" class="btn btn-blue txt"><span id="modeIcon" class="modeIcon" style="background:#3fbf3f">💀</span><span><span id="modeName">SHOWDOWN</span><small>Modus wechseln</small></span></button>
-    <button id="playBtn" class="btn btn-yellow txt">SPIELEN</button>
+    <button id="modeBox" class="tile txt"><span id="modeIcon" class="modeIcon" style="background:#3fbf3f">💀</span><span class="mInfo"><span class="mTimer" id="mapTimer">Neue Map in: --</span><span id="modeName">SHOWDOWN</span><span id="mapName">Karte</span></span></button>
+    <div class="playCol">
+      <div class="daily txt"><div class="dt">TÄGLICHE SIEGE</div><div class="slots" id="dailySlots"></div></div>
+      <button id="playBtn" class="btn btn-yellow txt">SPIELEN</button>
+    </div>
+  </div>
+</div>
+
+<!-- Shop -->
+<div id="shopSel" class="screen overlay">
+  <button class="btn btn-red txt closeX" data-close="shopSel">✕</button>
+  <h1 class="txt">SHOP</h1>
+  <div class="offers" id="offers"></div>
+</div>
+
+<!-- Quests -->
+<div id="questSel" class="screen overlay">
+  <button class="btn btn-red txt closeX" data-close="questSel">✕</button>
+  <h1 class="txt">QUESTS</h1>
+  <div class="quests" id="questList"></div>
+</div>
+
+<!-- News -->
+<div id="newsSel" class="screen overlay">
+  <button class="btn btn-red txt closeX" data-close="newsSel">✕</button>
+  <h1 class="txt">NEWS</h1>
+  <div class="news">
+    <p><b class="txt">NEUE LOBBY!</b> Shop, Quests, Tägliche Siege, Spieler-Level und dein eigener Name.</p>
+    <p><b class="txt">MAP-ROTATION</b> Jede Stunde gibt es neue Karten für Showdown und Juwelenjagd.</p>
+    <p><b class="txt">NEUER LOOK</b> Holzboden, Kisten, hohes Gras und Power-Kisten im Kampf.</p>
+    <p><b class="txt">STEUERUNG AM PC</b> WASD laufen · Maus zielen · Linksklick angreifen · Rechtsklick oder Leertaste = Super · F = Gadget · T = Emote · Q = Auto-Aim</p>
+    <p><b class="txt">GADGETS</b> Ab Power-Level 7 bekommt jeder Brawler ein Gadget (grüner Knopf).</p>
+  </div>
+</div>
+
+<!-- Profile -->
+<div id="profileSel" class="screen overlay">
+  <button class="btn btn-red txt closeX" data-close="profileSel">✕</button>
+  <h1 class="txt">PROFIL</h1>
+  <div class="profileForm">
+    <label for="nameInput" class="txt">Dein Name</label>
+    <input id="nameInput" maxlength="16" autocomplete="off">
+    <button id="nameSave" class="btn btn-green txt">SPEICHERN</button>
+    <div id="profileStats" class="pstats"></div>
   </div>
 </div>
 
@@ -158,8 +268,8 @@
   <button class="btn btn-red txt closeX" data-close="modeSel">✕</button>
   <h1 class="txt">EVENTS</h1>
   <div class="modes">
-    <div class="card modeCard" data-mode="sd"><div class="modeIcon" style="background:#3fbf3f">💀</div><div><div class="nm txt">SHOWDOWN</div><p>10 Brawler, nur einer überlebt! Zerstöre Kisten für Power-Würfel und hüte dich vor dem Giftgas.</p></div></div>
-    <div class="card modeCard" data-mode="gg"><div class="modeIcon" style="background:#b04dff">💎</div><div><div class="nm txt">JUWELENJAGD</div><p>3 gegen 3. Sammle Juwelen aus der Mine. Hält dein Team 10 Juwelen bis der Countdown abläuft, gewinnt ihr!</p></div></div>
+    <div class="card modeCard" data-mode="sd"><div class="modeIcon" style="background:#3fbf3f">💀</div><div><div class="nm txt">SHOWDOWN</div><p class="mapLine" id="mapSd"></p><p>10 Brawler, nur einer überlebt! Zerstöre Kisten für Power-Würfel und hüte dich vor dem Giftgas.</p></div></div>
+    <div class="card modeCard" data-mode="gg"><div class="modeIcon" style="background:#b04dff">💎</div><div><div class="nm txt">JUWELENJAGD</div><p class="mapLine" id="mapGg"></p><p>3 gegen 3. Sammle Juwelen aus der Mine. Hält dein Team 10 Juwelen bis der Countdown abläuft, gewinnt ihr!</p></div></div>
   </div>
 </div>
 
@@ -175,7 +285,8 @@
 <div id="result" class="screen">
   <div id="resTitle" class="txt">SIEG!</div>
   <div id="resSub" class="txt"></div>
-  <div class="rewards"><div id="resTrophies" class="txt"></div><div id="resCoins" class="txt"></div></div>
+  <div class="rewards"><div id="resTrophies" class="txt"></div><div id="resCoins" class="txt"></div><div id="resXp" class="txt"></div></div>
+  <div id="resExtra" class="txt"></div>
   <button id="resBtn" class="btn btn-yellow txt" style="font-size:1.8rem;padding:.4rem 2.4rem">WEITER</button>
 </div>
 </div>
@@ -185,11 +296,14 @@
 //  Utilities
 // =====================================================================
 const TAU = Math.PI * 2;
-const rand = (a, b) => a + Math.random() * (b - a);
+// RNG is Math.random, except while a map is generated (seeded, so a map stays the same for its whole rotation)
+let RNG = Math.random;
+function mulberry32(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const rand = (a, b) => a + RNG() * (b - a);
 const randi = (a, b) => Math.floor(rand(a, b + 1));
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
 const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
-const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+const pick = arr => arr[Math.floor(RNG() * arr.length)];
 const TROPHY_SVG = '<svg viewBox="0 0 32 32" class="trophy"><path d="M8 4h16v6a8 8 0 0 1-16 0z" fill="#ffc400" stroke="#000" stroke-width="2"/><path d="M8 6H3v3a5 5 0 0 0 5 5M24 6h5v3a5 5 0 0 1-5 5" fill="none" stroke="#000" stroke-width="2.5"/><rect x="13" y="17" width="6" height="6" fill="#ffc400" stroke="#000" stroke-width="2"/><rect x="9" y="23" width="14" height="5" rx="1" fill="#ffc400" stroke="#000" stroke-width="2"/></svg>';
 
 // =====================================================================
@@ -226,7 +340,7 @@ const UNLOCK = { kira: 0, dash: 10, brutus: 25, luna: 50, boom: 80, frost: 120 }
 // Coins needed to go from power level i+1 to i+2 (max level 11)
 const UPGRADE_COST = [20, 30, 50, 80, 130, 200, 300, 420, 560, 750];
 const MAX_LEVEL = 11;
-let save = { trophies: {}, levels: {}, coins: 0, sel: 'kira', mode: 'sd' };
+let save = { trophies: {}, levels: {}, coins: 0, gems: 0, sel: 'kira', mode: 'sd', name: 'Spieler', xp: 0, plevel: 1, daily: { day: '', wins: 0 }, giftDay: '', quests: [], newsSeen: 0 };
 try { const s = JSON.parse(localStorage.getItem('bsfan_save') || 'null'); if (s) save = Object.assign(save, s); } catch (e) {}
 for (const k of BRAWLER_KEYS) {
   if (save.trophies[k] == null) save.trophies[k] = 0;
@@ -237,6 +351,30 @@ const totalTrophies = () => BRAWLER_KEYS.reduce((s, k) => s + save.trophies[k], 
 const isUnlocked = k => totalTrophies() >= UNLOCK[k];
 if (!BR[save.sel] || !isUnlocked(save.sel)) save.sel = 'kira';
 const levelMult = lvl => 1 + 0.06 * (lvl - 1);
+const today = () => new Date().toDateString();
+const xpNeed = l => 100 + 50 * (l - 1);
+const DAILY_REWARDS = [{ coins: 20 }, { coins: 20 }, { gems: 3 }, { coins: 30 }, { coins: 40 }, { gems: 5 }];
+const NEWS_VERSION = 1;
+const QUEST_TYPES = {
+  kills:   { txt: n => `Besiege ${n} Gegner`, goals: [3, 5, 8] },
+  matches: { txt: n => `Spiele ${n} Matches`, goals: [2, 3, 5] },
+  top:     { txt: n => `Gewinne ${n}× (Showdown: Top 4)`, goals: [1, 2, 3] },
+  cubes:   { txt: n => `Sammle ${n} Power-Würfel`, goals: [4, 8, 12] },
+  damage:  { txt: n => `Mache ${n} Schaden`, goals: [8000, 15000, 30000] },
+  gems:    { txt: n => `Sammle ${n} Juwelen`, goals: [4, 8, 12] },
+  super:   { txt: n => `Setze ${n}× deinen Super ein`, goals: [2, 4, 6] },
+};
+function newQuest() {
+  const used = save.quests.map(q => q.k);
+  const k = pick(Object.keys(QUEST_TYPES).filter(k => !used.includes(k)));
+  const i = randi(0, QUEST_TYPES[k].goals.length - 1);
+  return { k, goal: QUEST_TYPES[k].goals[i], prog: 0, coins: 15 + i * 10, xp: 20 + i * 15 };
+}
+function checkDaily() {
+  if (save.daily.day !== today()) save.daily = { day: today(), wins: 0 };
+  while (save.quests.length < 3) save.quests.push(newQuest());
+}
+checkDaily();
 const GADGET_LEVEL = 7; // like in Brawl Stars, gadgets unlock at power level 7
 const EMOTES = ['😀', '😂', '👍', '😡', '😭', '😎'];
 
@@ -271,7 +409,8 @@ resize();
 // =====================================================================
 const T = 60;                 // tile size
 // 0 floor, 1 wall, 2 bush, 3 water, 4 power cube box
-let W = 40, H = 40, tiles, tileHp;
+let W = 40, H = 40, tiles, tileHp, deco;
+const BOX_HP = 4000;
 const tileAt = (tx, ty) => (tx < 0 || ty < 0 || tx >= W || ty >= H) ? 1 : tiles[ty * W + tx];
 const tileAtPx = (x, y) => tileAt(Math.floor(x / T), Math.floor(y / T));
 const blocksMove = t => t === 1 || t === 3 || t === 4;
@@ -281,6 +420,7 @@ function genMap(mode) {
   if (mode === 'sd') { W = 40; H = 40; } else { W = 27; H = 41; }
   tiles = new Uint8Array(W * H);
   tileHp = new Float32Array(W * H);
+  deco = new Uint8Array(W * H);
   const mirror = (x, y) => mode === 'sd'
     ? [[x, y], [W - 1 - x, y], [x, H - 1 - y], [W - 1 - x, H - 1 - y]]
     : [[x, y], [W - 1 - x, H - 1 - y]];
@@ -292,10 +432,10 @@ function genMap(mode) {
   const wallCount = mode === 'sd' ? 13 : 16;
   for (let i = 0; i < wallCount; i++) {
     let x = randi(1, rw - 2), y = randi(2, rh - 1);
-    const len = randi(2, 5), horiz = Math.random() < 0.5;
+    const len = randi(2, 5), horiz = RNG() < 0.5;
     for (let j = 0; j < len; j++) {
       set(x, y, 1);
-      if (Math.random() < 0.2) { horiz ? y += pick([-1, 1]) : x += pick([-1, 1]); set(x, y, 1); }
+      if (RNG() < 0.2) { horiz ? y += pick([-1, 1]) : x += pick([-1, 1]); set(x, y, 1); }
       horiz ? x++ : y++;
     }
   }
@@ -320,9 +460,16 @@ function genMap(mode) {
       const x = randi(2, rw - 1), y = randi(2, rh - 1);
       if (tiles[y * W + x] === 0) { set(x, y, 4); placed++; }
     }
-    for (let i = 0; i < W * H; i++) if (tiles[i] === 4) tileHp[i] = 2600;
+    for (let i = 0; i < W * H; i++) if (tiles[i] === 4) tileHp[i] = BOX_HP;
   }
 
+  // Floor decoration (vines), purely visual
+  for (let i = 0; i < 7; i++) {
+    const cx = randi(1, rw - 1), cy = randi(1, rh - 1), r = rand(1.5, 3);
+    for (let y = Math.floor(cy - r); y <= cy + r; y++) for (let x = Math.floor(cx - r); x <= cx + r; x++)
+      if (Math.hypot(x - cx, y - cy) <= r && x >= 0 && y >= 0 && x < rw && y < rh)
+        for (const [p, q] of mirror(x, y)) if (p >= 0 && q >= 0 && p < W && q < H) deco[q * W + p] = 1;
+  }
   // Spawns
   const spawns = [];
   const Wpx = W * T, Hpx = H * T;
@@ -441,6 +588,26 @@ class Brawler {
   get isBrawler() { return true; }
 }
 
+// ---------- Map rotation: every mode gets a new map each hour ----------
+const MAP_NAMES = {
+  sd: ['Giftschlucht', 'Lilawald', 'Kistenchaos', 'Mondsteg', 'Geistermühle', 'Grasmeer', 'Spukgasse', 'Würfelwiese'],
+  gg: ['Kristallmine', 'Juwelenhof', 'Felsenkreuz', 'Edelsteintal', 'Glitzergrube', 'Minenwirrwarr'],
+};
+const THEMES = {
+  night: { bg: '#1a0d2a', floorA: '#6b4a8e', floorB: '#654487', seam: 'rgba(35,15,60,.55)', grain: 'rgba(255,255,255,.05)', vine: '#3fd86a', vineDark: '#1f8a3e',
+           crateTop: '#e0457a', crateFace: '#992052', crateLine: '#ffa9c8', metalTop: '#e2def7', metalFace: '#9591c9', metalLine: '#b7b2e6',
+           bush: '#2fae52', bushDark: '#1b7434', bushLight: '#62e07f', water: '#4be36a', waterLine: '#b5ffbf', border: '#140a22' },
+  desert: { bg: '#2a1a0c', floorA: '#e8c27f', floorB: '#e1b874', seam: 'rgba(150,100,40,.35)', grain: 'rgba(255,255,255,.06)', vine: '#b9d46a', vineDark: '#7e9a3a',
+           crateTop: '#dd9150', crateFace: '#8a4d22', crateLine: '#f4b77a', metalTop: '#c9c3b5', metalFace: '#8c8577', metalLine: '#e6e0d2',
+           bush: '#3a9e45', bushDark: '#1f6b2a', bushLight: '#6fd06e', water: '#2f9be0', waterLine: '#bfe6ff', border: '#2b1a0c' },
+};
+function mapInfo(mode) {
+  const slot = Math.floor(Date.now() / 3600000);
+  const names = MAP_NAMES[mode];
+  const idx = (slot + (mode === 'gg' ? 3 : 0)) % names.length;
+  return { name: names[idx], seed: slot * 31 + (mode === 'gg' ? 7 : 1), theme: idx % 3 === 2 ? 'desert' : 'night', endsIn: (slot + 1) * 3600000 - Date.now() };
+}
+
 function newGame(mode, type) {
   G = {
     mode, t: 0, brawlers: [], pets: [], proj: [], parts: [], texts: [], booms: [], pickups: [],
@@ -448,7 +615,12 @@ function newGame(mode, type) {
     botLevel: clamp(0.25 + totalTrophies() / 600, 0.25, 0.8),
     deadOrder: [], cam: { x: 0, y: 0 }, msg: null, feed: [], timeLeft: mode === 'gg' ? 150 : 0, paused: false,
   };
+  const info = mapInfo(mode);
+  RNG = mulberry32(info.seed);
   const spawns = genMap(mode);
+  RNG = Math.random;
+  G.theme = THEMES[info.theme]; G.mapName = info.name;
+  G.stats = { kills: 0, damage: 0, cubes: 0, gems: 0, super: 0 };
   const names = BOT_NAMES.slice().sort(() => Math.random() - .5);
   const myLvl = save.levels[type];
   const botLvl = () => clamp(myLvl + randi(-1, 1), 1, MAX_LEVEL);
@@ -456,12 +628,12 @@ function newGame(mode, type) {
     spawns.sort(() => Math.random() - .5);
     for (let i = 0; i < 10; i++) {
       const s = spawns[i];
-      const b = new Brawler(i === 0 ? type : pick(BRAWLER_KEYS), i, s.x, s.y, i === 0, i === 0 ? 'Du' : names[i], i === 0 ? myLvl : botLvl());
+      const b = new Brawler(i === 0 ? type : pick(BRAWLER_KEYS), i, s.x, s.y, i === 0, i === 0 ? save.name : names[i], i === 0 ? myLvl : botLvl());
       G.brawlers.push(b);
     }
   } else {
     spawns.forEach((s, i) => {
-      const b = new Brawler(i === 1 ? type : pick(BRAWLER_KEYS), s.team, s.x, s.y, i === 1, i === 1 ? 'Du' : names[i], i === 1 ? myLvl : botLvl());
+      const b = new Brawler(i === 1 ? type : pick(BRAWLER_KEYS), s.team, s.x, s.y, i === 1, i === 1 ? save.name : names[i], i === 1 ? myLvl : botLvl());
       G.brawlers.push(b);
     });
   }
@@ -505,6 +677,7 @@ function damage(target, amount, src, isSuper) {
   target.lastHurt = G.t; target.revealT = 1.0; target.flash = 0.12;
   const visible = target === player || src === player || (player && canSee(player.team, target));
   if (visible) floatText(target.x, target.y - 50, amount, src === player ? '#fff' : target === player ? '#ff4b4b' : '#ffdf5e');
+  if (src === player || (src && src.isPet && src.owner === player)) G.stats.damage += amount;
   if (src && src.isBrawler && !isSuper && src.alive) src.superCharge = Math.min(1, src.superCharge + amount / src.d.superCost);
   if (target.hp <= 0) kill(target, src);
 }
@@ -514,7 +687,7 @@ function kill(u, src) {
   u.alive = false; u.hp = 0; u.burst = null; u.leap = null;
   for (let i = 0; i < 18; i++) particle(u.x, u.y, pick([u.d.color, u.d.dark, '#fff']), 320, .8, 9);
   G.pets.forEach(p => { if (p.owner === u) p.dead = true; });
-  if (src && src.isBrawler && src.alive && src === player) G.msg = { text: 'K.O.!', t: 1.1, small: true };
+  if (src && src.isBrawler && src.alive && src === player) { G.msg = { text: 'K.O.!', t: 1.1, small: true }; G.stats.kills++; }
   if (src && src.isBrawler && src.alive && !src.isPlayer && Math.random() < 0.35) src.emote = { e: pick(['😂', '👍', '😎']), t: 2 };
   G.feed.unshift({ a: src && src.isBrawler ? src : null, b: u, t: 4 });
   if (G.feed.length > 4) G.feed.length = 4;
@@ -588,6 +761,7 @@ function tryAttack(b, ang, d) {
 function trySuper(b, ang, d) {
   if (!b.alive || b.superCharge < 1 || b.leap || b.burst) return false;
   b.superCharge = 0; b.lastAttack = G.t; b.revealT = 1.0; b.aim = ang;
+  if (b === player) G.stats.super++;
   const dd = b.d;
   switch (b.type) {
     case 'kira':
@@ -822,10 +996,12 @@ function updatePickups(dt) {
       if ((b.x - k.x) ** 2 + (b.y - k.y) ** 2 < (b.r + 18) ** 2) {
         k.dead = true;
         if (k.type === 'cube') {
+          if (b === player) G.stats.cubes++;
           b.cubes++; b.maxHp += 400; b.hp += 400; b.dmgMult = b.lvlMult * (1 + 0.1 * b.cubes);
           if (b === player || canSee(player.team, b)) floatText(b.x, b.y - 60, '+1 ⬛', '#5dff6a');
         } else {
           b.gems++;
+          if (b === player) G.stats.gems++;
         }
         break;
       }
@@ -1049,7 +1225,8 @@ function btnPos() {
     atk: { x: VW - 115 * s, y: VH - 125 * s, r: 62 * s },
     sup: { x: VW - 240 * s, y: VH - 80 * s, r: 46 * s },
     gad: { x: VW - 225 * s, y: VH - 185 * s, r: 30 * s },
-    emo: { x: VW - 42 * s, y: VH * 0.38, r: 26 * s },
+    emo: { x: VW - 50 * s, y: 40 * s, r: 26 * s },
+    mov: { x: 120 * s, y: VH - 115 * s, r: 62 * s },
   };
 }
 addEventListener('keydown', e => {
@@ -1109,7 +1286,7 @@ cv.addEventListener('touchstart', e => {
     if (Math.hypot(x - bp.emo.x, y - bp.emo.y) < bp.emo.r * 1.3) { player.emote = { e: pick(EMOTES), t: 2 }; continue; }
     if (!sticks.sup && Math.hypot(x - bp.sup.x, y - bp.sup.y) < bp.sup.r * 1.3) sticks.sup = { id: t.identifier, ox: bp.sup.x, oy: bp.sup.y, x, y, max: bp.sup.r * 1.4 };
     else if (x > VW * 0.5 && !sticks.atk) sticks.atk = { id: t.identifier, ox: bp.atk.x, oy: bp.atk.y, sx: x, sy: y, x: bp.atk.x, y: bp.atk.y, max: bp.atk.r * 1.2, moved: false };
-    else if (x <= VW * 0.5 && !sticks.move) sticks.move = { id: t.identifier, ox: x, oy: y, x, y, max: 60 };
+    else if (x <= VW * 0.5 && !sticks.move) sticks.move = { id: t.identifier, ox: x, oy: y, x, y, max: bp.mov.r };
   }
 }, { passive: false });
 cv.addEventListener('touchmove', e => {
@@ -1344,6 +1521,15 @@ function drawBear(c, p, time) {
   c.restore();
 }
 
+function drawSkull(c, x, y, r, col) {
+  c.save(); c.translate(x, y);
+  c.fillStyle = col || '#fff'; c.strokeStyle = '#000'; c.lineWidth = Math.max(2, r * 0.18);
+  c.beginPath(); c.arc(0, -r * 0.15, r, Math.PI * 0.85, Math.PI * 2.15); c.lineTo(r * 0.55, r * 0.95); c.lineTo(-r * 0.55, r * 0.95); c.closePath(); c.fill(); c.stroke();
+  c.fillStyle = '#111';
+  for (const sx of [-1, 1]) { c.beginPath(); c.ellipse(sx * r * 0.42, -r * 0.1, r * 0.27, r * 0.32, 0, 0, TAU); c.fill(); }
+  c.beginPath(); c.moveTo(0, r * 0.25); c.lineTo(-r * 0.13, r * 0.5); c.lineTo(r * 0.13, r * 0.5); c.closePath(); c.fill();
+  c.restore();
+}
 function drawGem(c, x, y, s) {
   c.save(); c.translate(x, y); c.scale(s, s);
   c.lineWidth = 2.5; c.strokeStyle = '#111';
@@ -1364,7 +1550,8 @@ function drawCube(c, x, y, s) {
 function render() {
   const c = ctx;
   c.setTransform(DPR, 0, 0, DPR, 0, 0);
-  c.fillStyle = '#1e3a14'; c.fillRect(0, 0, VW, VH);
+  const TH = G.theme;
+  c.fillStyle = TH.bg; c.fillRect(0, 0, VW, VH);
   c.save();
   const sh = G.shake;
   c.translate(VW / 2 + rand(-sh, sh), VH / 2 + rand(-sh, sh));
@@ -1375,14 +1562,26 @@ function render() {
   const x0 = Math.max(0, Math.floor((G.cam.x - hw) / T) - 1), x1 = Math.min(W - 1, Math.floor((G.cam.x + hw) / T) + 1);
   const y0 = Math.max(0, Math.floor((G.cam.y - hh) / T) - 1), y1 = Math.min(H - 1, Math.floor((G.cam.y + hh) / T) + 2);
 
-  // floor
+  // floor: wooden planks (two planks per tile row, staggered seams)
   for (let ty = y0; ty <= y1; ty++) for (let tx = x0; tx <= x1; tx++) {
-    let col = (tx + ty) % 2 ? '#e8c27f' : '#e1b874';
-    if (G.mode === 'gg') col = (tx + ty) % 2 ? (ty < H / 2 ? '#d9b07a' : '#d2ba7a') : (ty < H / 2 ? '#d1a76f' : '#c9b170');
-    c.fillStyle = col; c.fillRect(tx * T, ty * T, T + 1, T + 1);
+    const x = tx * T, y = ty * T;
+    for (let k = 0; k < 2; k++) {
+      const py = y + k * T / 2, row = ty * 2 + k;
+      c.fillStyle = (row * 7 + tx) % 3 ? TH.floorA : TH.floorB; c.fillRect(x, py, T + 1, T / 2 + 1);
+      c.fillStyle = TH.grain; c.fillRect(x, py + 6, T, 3);
+      c.fillStyle = TH.seam; c.fillRect(x, py + T / 2 - 2, T + 1, 2);
+      if ((tx + row * 3) % 4 === 0) c.fillRect(x + (row % 2 ? 18 : 40), py, 2, T / 2);
+    }
+    if (deco[ty * W + tx]) { // vine lattice on the floor
+      c.strokeStyle = TH.vineDark; c.lineWidth = 7; c.beginPath();
+      c.moveTo(x + 6, y + 6); c.lineTo(x + T - 6, y + T - 6); c.moveTo(x + T - 6, y + 6); c.lineTo(x + 6, y + T - 6); c.stroke();
+      c.strokeStyle = TH.vine; c.lineWidth = 4; c.stroke();
+      c.fillStyle = TH.vine;
+      for (const [ox, oy] of [[T / 2, 10], [T / 2, T - 10], [10, T / 2], [T - 10, T / 2]]) { c.beginPath(); c.moveTo(x + ox, y + oy - 6); c.lineTo(x + ox + 6, y + oy); c.lineTo(x + ox, y + oy + 6); c.lineTo(x + ox - 6, y + oy); c.closePath(); c.fill(); }
+    }
   }
   // map border
-  c.strokeStyle = '#2b1a0c'; c.lineWidth = 10; c.strokeRect(-5, -5, W * T + 10, H * T + 10);
+  c.strokeStyle = TH.border; c.lineWidth = 14; c.strokeRect(-7, -7, W * T + 14, H * T + 14);
 
   // spawn pads & gem mine
   if (G.mode === 'gg') {
@@ -1400,8 +1599,8 @@ function render() {
 
   // water
   for (let ty = y0; ty <= y1; ty++) for (let tx = x0; tx <= x1; tx++) if (tiles[ty * W + tx] === 3) {
-    c.fillStyle = '#2f9be0'; c.fillRect(tx * T, ty * T, T + 1, T + 1);
-    c.strokeStyle = 'rgba(255,255,255,.5)'; c.lineWidth = 3;
+    c.fillStyle = TH.water; c.fillRect(tx * T, ty * T, T + 1, T + 1);
+    c.strokeStyle = TH.waterLine; c.lineWidth = 3;
     const o = Math.sin(time * 2 + tx + ty) * 6;
     c.beginPath(); c.moveTo(tx * T + 10 + o, ty * T + 22); c.quadraticCurveTo(tx * T + 22 + o, ty * T + 16, tx * T + 34 + o, ty * T + 22); c.stroke();
     c.beginPath(); c.moveTo(tx * T + 24 - o, ty * T + 42); c.quadraticCurveTo(tx * T + 36 - o, ty * T + 36, tx * T + 48 - o, ty * T + 42); c.stroke();
@@ -1436,14 +1635,17 @@ function render() {
     const cx = tx * T + T / 2, cy = ty * T + T / 2;
     const near = player.alive && Math.hypot(player.x - cx, player.y - cy) < 130;
     c.globalAlpha = near ? 0.45 : 1;
-    c.fillStyle = '#2e8b3e'; c.strokeStyle = '#14451c'; c.lineWidth = 3;
-    const wob = Math.sin(time * 2 + tx * 1.3 + ty) * 1.5;
-    c.beginPath();
-    c.arc(cx - 12, cy - 6 + wob, 20, 0, TAU); c.arc(cx + 14, cy - 10, 19, 0, TAU);
-    c.arc(cx - 8, cy + 14, 19, 0, TAU); c.arc(cx + 14, cy + 12 - wob, 20, 0, TAU);
-    c.fill();
-    c.fillStyle = '#47b35a';
-    c.beginPath(); c.arc(cx - 14, cy - 12 + wob, 9, 0, TAU); c.arc(cx + 10, cy - 16, 8, 0, TAU); c.arc(cx + 8, cy + 6, 7, 0, TAU); c.fill();
+    // tall grass: dark base + rows of blades swaying in the wind
+    c.fillStyle = TH.bushDark; c.fillRect(cx - T / 2, cy - T / 2 + 4, T, T - 2);
+    for (let r = 0; r < 3; r++) {
+      const by = cy - T / 2 + 14 + r * 18;
+      for (let i = 0; i < 6; i++) {
+        const bx = cx - T / 2 + 5 + i * 10 + (r % 2) * 5;
+        const sway = Math.sin(time * 2.2 + tx * 0.9 + ty * 0.7 + i * 0.6) * 3;
+        c.fillStyle = (i + r) % 2 ? TH.bush : TH.bushLight;
+        c.beginPath(); c.moveTo(bx - 6, by + 12); c.lineTo(bx + sway, by - 18); c.lineTo(bx + 6, by + 12); c.closePath(); c.fill();
+      }
+    }
     c.globalAlpha = 1;
   }
 
@@ -1497,27 +1699,39 @@ function render() {
 }
 
 function drawWall(c, tx, ty) {
-  const x = tx * T, y = ty * T - 14;
-  c.fillStyle = 'rgba(0,0,0,.2)'; c.fillRect(x + 4, y + T + 6, T, 10);
-  c.fillStyle = '#8a4d22'; c.fillRect(x, y + T - 2, T, 16);
-  c.fillStyle = '#c97a3a'; c.fillRect(x, y, T, T);
-  c.fillStyle = '#dd9150'; c.fillRect(x + 4, y + 4, T - 8, T - 8);
-  c.strokeStyle = '#4a2810'; c.lineWidth = 2; c.strokeRect(x + 0.5, y + 0.5, T - 1, T + 14);
-  c.strokeStyle = 'rgba(120,60,20,.6)'; c.beginPath(); c.moveTo(x + 4, y + T / 2); c.lineTo(x + T - 4, y + T / 2); c.moveTo(x + T / 2, y + 4); c.lineTo(x + T / 2, y + T / 2); c.stroke();
+  const TH = G.theme, x = tx * T, y = ty * T - 16;
+  const metal = ((tx * 73856093) ^ (ty * 19349663)) % 5 === 0; // some blocks are metal crates
+  c.fillStyle = 'rgba(0,0,0,.25)'; c.fillRect(x + 6, y + T + 10, T, 10);
+  c.fillStyle = metal ? TH.metalFace : TH.crateFace; c.fillRect(x, y + T - 2, T, 20);
+  c.fillStyle = metal ? TH.metalTop : TH.crateTop; c.fillRect(x, y, T, T);
+  c.strokeStyle = 'rgba(0,0,0,.55)'; c.lineWidth = 2.5; c.strokeRect(x + 1, y + 1, T - 2, T + 16);
+  c.strokeStyle = metal ? TH.metalLine : TH.crateLine; c.lineWidth = 3;
+  c.strokeRect(x + 6, y + 6, T - 12, T - 12);
+  if (metal) { // riveted X emblem
+    c.fillStyle = TH.metalFace; c.beginPath(); c.arc(x + T / 2, y + T / 2, 11, 0, TAU); c.fill();
+    c.strokeStyle = TH.metalTop; c.lineWidth = 3; c.beginPath();
+    c.moveTo(x + T / 2 - 5, y + T / 2 - 5); c.lineTo(x + T / 2 + 5, y + T / 2 + 5); c.moveTo(x + T / 2 + 5, y + T / 2 - 5); c.lineTo(x + T / 2 - 5, y + T / 2 + 5); c.stroke();
+  } else { c.beginPath(); c.moveTo(x + 8, y + T - 8); c.lineTo(x + T - 8, y + 8); c.stroke(); }
 }
 function drawBox(c, tx, ty, time) {
-  const x = tx * T, y = ty * T - 12, i = ty * W + tx;
-  c.fillStyle = 'rgba(0,0,0,.2)'; c.fillRect(x + 6, y + T + 4, T - 4, 10);
-  c.fillStyle = '#6b3d1a'; c.fillRect(x + 2, y + T - 4, T - 4, 14);
-  c.fillStyle = G.boxFlash[i] ? '#fff' : '#a8692f'; c.fillRect(x + 2, y, T - 4, T - 2);
-  c.strokeStyle = '#3d220c'; c.lineWidth = 3; c.strokeRect(x + 2, y, T - 4, T + 10);
-  c.beginPath(); c.moveTo(x + 2, y); c.lineTo(x + T - 2, y + T - 2); c.moveTo(x + T - 2, y); c.lineTo(x + 2, y + T - 2); c.stroke();
-  drawCube(c, x + T / 2, y + T / 2 - 2, 1.0 + Math.sin(time * 3) * 0.05);
-  if (tileHp[i] < 2600) {
-    const f = tileHp[i] / 2600;
-    c.fillStyle = '#000'; c.fillRect(x + 4, y - 12, T - 8, 8);
-    c.fillStyle = '#5dff6a'; c.fillRect(x + 5, y - 11, (T - 10) * f, 6);
-  }
+  const x = tx * T, y = ty * T - 14, i = ty * W + tx, cx = x + T / 2;
+  // red danger disc under the power cube box
+  c.fillStyle = 'rgba(255,70,70,.45)'; c.beginPath(); c.ellipse(cx, ty * T + T - 4, 42, 22, 0, 0, TAU); c.fill();
+  c.strokeStyle = 'rgba(255,90,90,.9)'; c.lineWidth = 3; c.stroke();
+  const flash = G.boxFlash[i];
+  c.fillStyle = flash ? '#fff' : '#c4651e'; c.fillRect(x + 6, y + T - 8, T - 12, 18);
+  c.fillStyle = flash ? '#fff' : '#f39a2c'; c.fillRect(x + 6, y + 2, T - 12, T - 10);
+  c.fillStyle = flash ? '#fff' : '#ffc45a'; c.fillRect(x + 6, y + 2, T - 12, 8);
+  c.strokeStyle = '#4a2408'; c.lineWidth = 3; c.strokeRect(x + 6, y + 2, T - 12, T + 6);
+  c.fillStyle = '#8c4a12'; c.fillRect(x + 6, y + 22, T - 12, 4);
+  // lightning plate
+  c.fillStyle = '#fff3d6'; roundRect(c, cx - 11, y + 28, 22, 18, 4); c.fill(); c.stroke();
+  c.fillStyle = '#f39a2c'; c.beginPath(); c.moveTo(cx + 2, y + 30); c.lineTo(cx - 5, y + 39); c.lineTo(cx, y + 39); c.lineTo(cx - 2, y + 45); c.lineTo(cx + 5, y + 36); c.lineTo(cx, y + 36); c.closePath(); c.fill();
+  // health label
+  const hp = Math.max(0, Math.ceil(tileHp[i]));
+  c.fillStyle = '#000'; roundRect(c, cx - 32, y - 16, 64, 12, 5); c.fill();
+  c.fillStyle = '#ff3b3b'; roundRect(c, cx - 30, y - 14, 60 * clamp(tileHp[i] / BOX_HP, 0, 1), 8, 3); c.fill();
+  txt(c, String(hp), cx, y - 26, 15, '#fff', 'center', 3);
 }
 
 function drawUnit(c, b, time) {
@@ -1559,7 +1773,7 @@ function drawOverhead(c, b) {
   if (b.leap) y -= Math.sin(b.leap.t / b.leap.dur * Math.PI) * 90;
   const col = b === player ? '#3cff5a' : b.team === player.team ? '#3ba3ff' : '#ff3b3b';
   drawBar(c, b.x, y, 74, b.hp / b.maxHp, col, String(Math.ceil(b.hp)));
-  txt(c, b.name, b.x, y - 34, 15, b === player ? '#3cff5a' : '#fff', 'center', 3);
+  txt(c, b.name, b.x, y - 32, 17, b === player ? '#3cff5a' : b.team === player.team ? '#7cc4ff' : '#ff6b6b', 'center', 4);
   if (b === player) {
     // ammo
     const w = 74, seg = w / 3;
@@ -1570,7 +1784,7 @@ function drawOverhead(c, b) {
       c.fillStyle = f >= 1 ? '#ff9f1c' : '#b06a10'; c.fillRect(b.x - w / 2 + i * seg + 1, y + 10, (seg - 2) * f, 7);
     }
   }
-  if (G.mode === 'sd' && b.cubes > 0) { drawCube(c, b.x - 50, y - 1, 0.75); txt(c, String(b.cubes), b.x - 50, y + 12, 14, '#9dff9d', 'center', 3); }
+  if (G.mode === 'sd' && b.cubes > 0) { drawCube(c, b.x - 10, y - 54, 0.8); txt(c, String(b.cubes), b.x + 4, y - 54, 18, '#9dff9d', 'left', 4); }
   if (G.mode === 'gg' && b.gems > 0) { drawGem(c, b.x, y - 56, 1); txt(c, String(b.gems), b.x + 16, y - 56, 18, '#f1b6ff', 'left', 4); }
   if (b.emote) {
     const ey = y - (G.mode === 'gg' && b.gems > 0 ? 95 : 70) - Math.min(0, (b.emote.t - 1.8) * 60);
@@ -1655,9 +1869,10 @@ function drawHUD(c) {
   // top info
   if (G.mode === 'sd') {
     const alive = G.brawlers.filter(b => b.alive).length;
-    c.fillStyle = 'rgba(0,0,0,.45)'; roundRect(c, VW / 2 - 110, 10, 220, 46, 12); c.fill();
-    txt(c, '💀 ' + alive + ' übrig', VW / 2, 34, 26, '#fff');
-    if (G.gasInset <= 0 && G.t < 18) txt(c, 'Gas in ' + Math.ceil(18 - G.t) + 's', VW / 2, 74, 18, '#9dff9d', 'center', 4);
+    const lx = parseFloat(document.documentElement.style.fontSize) * 3.2 + 14;
+    drawSkull(c, lx, 30, 13);
+    txt(c, 'Übrige Brawler: ' + alive, lx + 20, 30, 26, '#fff', 'left', 5);
+    if (G.gasInset <= 0 && G.t < 18) txt(c, 'Gas in ' + Math.ceil(18 - G.t) + 's', lx + 20, 62, 18, '#9dff9d', 'left', 4);
   } else {
     const g = G.teamGems || [0, 0];
     const mine = g[player.team], their = g[1 - player.team];
@@ -1676,15 +1891,21 @@ function drawHUD(c) {
   // touch controls
   const bp = btnPos();
   if (isTouch) {
-    const m = sticks.move;
-    if (m) {
-      c.fillStyle = 'rgba(255,255,255,.15)'; c.beginPath(); c.arc(m.ox, m.oy, m.max, 0, TAU); c.fill();
-      c.fillStyle = 'rgba(255,255,255,.55)'; c.beginPath(); c.arc(m.x, m.y, 28, 0, TAU); c.fill();
-    }
-    const a = sticks.atk;
-    c.fillStyle = 'rgba(255,90,60,.35)'; c.strokeStyle = 'rgba(0,0,0,.6)'; c.lineWidth = 4;
-    c.beginPath(); c.arc(bp.atk.x, bp.atk.y, bp.atk.r, 0, TAU); c.fill(); c.stroke();
-    c.fillStyle = '#ff6a3d'; c.beginPath(); c.arc(a ? a.x : bp.atk.x, a ? a.y : bp.atk.y, bp.atk.r * 0.45, 0, TAU); c.fill(); c.stroke();
+    // movement joystick (blue), shown at its resting place when not touched
+    const m = sticks.move, mo = m ? { x: m.ox, y: m.oy } : bp.mov, mk = m ? { x: m.x, y: m.y } : bp.mov;
+    c.fillStyle = 'rgba(70,120,255,.22)'; c.strokeStyle = 'rgba(120,170,255,.55)'; c.lineWidth = 3;
+    c.beginPath(); c.arc(mo.x, mo.y, bp.mov.r, 0, TAU); c.fill(); c.stroke();
+    c.fillStyle = 'rgba(80,130,255,.75)'; c.strokeStyle = 'rgba(20,40,120,.8)';
+    c.beginPath(); c.arc(mk.x, mk.y, bp.mov.r * 0.45, 0, TAU); c.fill(); c.stroke();
+    // attack joystick (red ring with crosshair)
+    const a = sticks.atk, ax = a ? a.x : bp.atk.x, ay = a ? a.y : bp.atk.y;
+    c.fillStyle = 'rgba(255,70,70,.16)'; c.strokeStyle = 'rgba(255,80,80,.6)'; c.lineWidth = 3;
+    c.beginPath(); c.arc(bp.atk.x, bp.atk.y, bp.atk.r * 1.35, 0, TAU); c.fill(); c.stroke();
+    c.fillStyle = 'rgba(230,60,60,.8)'; c.strokeStyle = 'rgba(110,10,10,.8)';
+    c.beginPath(); c.arc(ax, ay, bp.atk.r * 0.55, 0, TAU); c.fill(); c.stroke();
+    c.strokeStyle = 'rgba(255,200,200,.9)'; c.lineWidth = 3; const cr = bp.atk.r * 0.28;
+    c.beginPath(); c.arc(ax, ay, cr, 0, TAU); c.moveTo(ax - cr * 1.5, ay); c.lineTo(ax - cr * 0.5, ay); c.moveTo(ax + cr * 0.5, ay); c.lineTo(ax + cr * 1.5, ay);
+    c.moveTo(ax, ay - cr * 1.5); c.lineTo(ax, ay - cr * 0.5); c.moveTo(ax, ay + cr * 0.5); c.lineTo(ax, ay + cr * 1.5); c.stroke();
   }
   // gadget button (green, from power level 7) and emote button
   if (player.level >= GADGET_LEVEL) {
@@ -1695,20 +1916,22 @@ function drawHUD(c) {
     for (let i = 0; i < 3; i++) { c.fillStyle = i < player.gadgets ? '#3ddc4f' : '#333'; c.beginPath(); c.arc(g.x - 12 + i * 12, g.y + g.r + 8, 4, 0, TAU); c.fill(); c.stroke(); }
     if (!isTouch) txt(c, 'F', g.x + g.r, g.y - g.r, 14, '#fff', 'center', 3);
   }
-  c.lineWidth = 3; c.strokeStyle = '#000'; c.fillStyle = 'rgba(0,0,0,.45)';
-  c.beginPath(); c.arc(bp.emo.x, bp.emo.y, bp.emo.r, 0, TAU); c.fill(); c.stroke();
-  txt(c, '😀', bp.emo.x, bp.emo.y + 1, bp.emo.r, '#fff', 'center', 0);
+  // emote button: white speech bubble
+  { const e = bp.emo; c.fillStyle = '#fff'; c.strokeStyle = '#000'; c.lineWidth = 3;
+    roundRect(c, e.x - e.r * 1.2, e.y - e.r * 0.85, e.r * 2.4, e.r * 1.7, e.r * 0.6); c.fill(); c.stroke();
+    c.beginPath(); c.moveTo(e.x + e.r * 0.3, e.y + e.r * 0.8); c.lineTo(e.x + e.r * 0.9, e.y + e.r * 1.3); c.lineTo(e.x + e.r * 0.8, e.y + e.r * 0.7); c.fill();
+    c.fillStyle = '#111'; for (const dx of [-1, 0, 1]) { c.beginPath(); c.arc(e.x + dx * e.r * 0.55, e.y, e.r * 0.2, 0, TAU); c.fill(); } }
   // super button (always visible; clickable with mouse too)
   const s = sticks.sup, ready = player.superCharge >= 1;
-  c.lineWidth = 4; c.strokeStyle = '#000';
-  c.fillStyle = 'rgba(0,0,0,.5)'; c.beginPath(); c.arc(bp.sup.x, bp.sup.y, bp.sup.r, 0, TAU); c.fill(); c.stroke();
-  c.strokeStyle = ready ? '#ffd23f' : '#b06aff'; c.lineWidth = 7;
-  c.beginPath(); c.arc(bp.sup.x, bp.sup.y, bp.sup.r - 6, -Math.PI / 2, -Math.PI / 2 + TAU * player.superCharge); c.stroke();
+  c.lineWidth = 4; c.strokeStyle = '#0b1640';
+  c.fillStyle = ready ? '#2f6dff' : 'rgba(30,50,110,.75)'; c.beginPath(); c.arc(bp.sup.x, bp.sup.y, bp.sup.r, 0, TAU); c.fill(); c.stroke();
+  c.strokeStyle = 'rgba(0,0,0,.35)'; c.lineWidth = 7; c.beginPath(); c.arc(bp.sup.x, bp.sup.y, bp.sup.r + 5, 0, TAU); c.stroke();
+  c.strokeStyle = '#ffc928'; c.beginPath(); c.arc(bp.sup.x, bp.sup.y, bp.sup.r + 5, -Math.PI / 2, -Math.PI / 2 + TAU * player.superCharge); c.stroke();
   const sx = s ? s.x : bp.sup.x, sy = s ? s.y : bp.sup.y;
-  c.fillStyle = ready ? `rgba(255,210,63,${0.8 + Math.sin(G.t * 8) * 0.2})` : '#6b3fa8';
-  c.lineWidth = 3; c.strokeStyle = '#000';
-  c.beginPath(); c.arc(sx, sy, bp.sup.r * 0.55, 0, TAU); c.fill(); c.stroke();
-  txt(c, '★', sx, sy + 1, bp.sup.r * 0.6, '#fff', 'center', 3);
+  c.fillStyle = ready ? `rgba(70,140,255,${0.85 + Math.sin(G.t * 8) * 0.15})` : '#27408f';
+  c.lineWidth = 3; c.strokeStyle = '#0b1640';
+  c.beginPath(); c.arc(sx, sy, bp.sup.r * 0.62, 0, TAU); c.fill(); c.stroke();
+  drawSkull(c, sx, sy, bp.sup.r * 0.36, ready ? '#fff' : '#9fb3e6');
   if (!isTouch && ready) txt(c, 'SUPER: Rechtsklick / Leertaste', bp.sup.x - bp.sup.r - 10, bp.sup.y - bp.sup.r - 10, 16, '#ffd23f', 'right', 4);
 
   // big message
@@ -1721,16 +1944,16 @@ function drawHUD(c) {
   }
   // power cubes of player
   if (G.mode === 'sd') {
-    c.fillStyle = 'rgba(0,0,0,.45)'; roundRect(c, VW - 96, 12, 82, 40, 10); c.fill();
-    drawCube(c, VW - 74, 32, 1.1); txt(c, String(player.cubes), VW - 40, 32, 24, '#9dff9d');
+    c.fillStyle = 'rgba(0,0,0,.45)'; roundRect(c, VW - 190, 12, 82, 40, 10); c.fill();
+    drawCube(c, VW - 168, 32, 1.1); txt(c, String(player.cubes), VW - 134, 32, 24, '#9dff9d');
   } else {
     // match timer
     const tl = Math.max(0, Math.ceil(G.timeLeft));
-    c.fillStyle = 'rgba(0,0,0,.45)'; roundRect(c, VW - 96, 12, 82, 40, 10); c.fill();
-    txt(c, Math.floor(tl / 60) + ':' + String(tl % 60).padStart(2, '0'), VW - 55, 32, 24, tl <= 20 ? '#ff5c5c' : '#fff');
+    c.fillStyle = 'rgba(0,0,0,.45)'; roundRect(c, VW - 190, 12, 82, 40, 10); c.fill();
+    txt(c, Math.floor(tl / 60) + ':' + String(tl % 60).padStart(2, '0'), VW - 149, 32, 24, tl <= 20 ? '#ff5c5c' : '#fff');
   }
   // kill feed
-  let fy = 72;
+  let fy = 100;
   for (const f of G.feed) {
     c.globalAlpha = Math.min(1, f.t);
     const nameCol = b => b === player ? '#3cff5a' : b.team === player.team ? '#5cb8ff' : '#ff6b6b';
@@ -1751,15 +1974,15 @@ function drawHUD(c) {
 //  Lobby & screens
 // =====================================================================
 const $ = id => document.getElementById(id);
-const screens = ['lobby', 'brawlerSel', 'modeSel', 'match', 'result'];
+const screens = ['lobby', 'brawlerSel', 'modeSel', 'shopSel', 'questSel', 'newsSel', 'profileSel', 'match', 'result'];
 function show(id) {
-  const overLobby = id === 'brawlerSel' || id === 'modeSel';
+  const overLobby = id.endsWith('Sel');
   for (const s of screens) $(s).classList.toggle('show', s === id || (overLobby && s === 'lobby'));
 }
 const MODES = { sd: { name: 'SHOWDOWN', icon: '💀', col: '#3fbf3f' }, gg: { name: 'JUWELENJAGD', icon: '💎', col: '#b04dff' } };
 const COIN = '<span class="coin"></span>';
+const GEM = '<span class="gemI"></span>';
 document.querySelectorAll('.trophyIcon').forEach(e => e.innerHTML = TROPHY_SVG);
-if (touchDevice) $('help').hidden = true;
 
 function drawIcon(canvas, k, scale) {
   const c = canvas.getContext('2d');
@@ -1772,7 +1995,25 @@ const canUpgrade = k => isUnlocked(k) && save.levels[k] < MAX_LEVEL && save.coin
 
 function refreshLobby() {
   const d = BR[save.sel];
-  $('brawlerNameTxt').textContent = d.name.toUpperCase();
+  checkDaily();
+  $('brawlerName').textContent = d.name.toUpperCase();
+  $('pname').textContent = save.name;
+  $('plevel').textContent = save.plevel;
+  $('gems').textContent = save.gems;
+  $('xpBar').style.width = clamp(save.xp / xpNeed(save.plevel) * 100, 0, 100) + '%';
+  $('xpTxt').textContent = save.xp + '/' + xpNeed(save.plevel);
+  $('shopTag').hidden = save.giftDay === today();
+  $('questTag').hidden = true;
+  $('newsTag').hidden = save.newsSeen >= NEWS_VERSION;
+  const slots = $('dailySlots'); slots.innerHTML = '';
+  DAILY_REWARDS.forEach((r, i) => {
+    const el = document.createElement('div');
+    el.className = 'slot' + (i < save.daily.wins ? ' done' : i === save.daily.wins ? ' next' : '');
+    el.innerHTML = i < save.daily.wins ? '✓' : r.gems ? GEM : COIN;
+    el.title = r.gems ? r.gems + ' Edelsteine' : r.coins + ' Münzen';
+    slots.appendChild(el);
+  });
+  updateMapLabels();
   $('brawlerLvl').textContent = save.levels[save.sel];
   $('brawlerTrophies').innerHTML = TROPHY_SVG + save.trophies[save.sel];
   const tot = totalTrophies();
@@ -1793,6 +2034,54 @@ function refreshLobby() {
   $('modeName').textContent = m.name; $('modeIcon').textContent = m.icon; $('modeIcon').style.background = m.col;
   drawIcon($('avatar'), save.sel, 1.6);
 }
+function updateMapLabels() {
+  const info = mapInfo(save.mode), sec = Math.ceil(info.endsIn / 1000);
+  $('mapName').textContent = info.name;
+  $('mapTimer').textContent = 'Neue Map in: ' + Math.floor(sec / 60) + 'M ' + String(sec % 60).padStart(2, '0') + 'S';
+  $('mapSd').textContent = 'Karte: ' + mapInfo('sd').name;
+  $('mapGg').textContent = 'Karte: ' + mapInfo('gg').name;
+}
+setInterval(() => { if (!G) updateMapLabels(); }, 1000);
+
+function buildShop() {
+  const el = $('offers'); el.innerHTML = '';
+  const offers = [
+    { title: 'GRATIS-GESCHENK', big: COIN + '30', desc: 'Einmal pro Tag kostenlos.', btn: () => save.giftDay === today() ? 'MORGEN WIEDER' : 'GRATIS',
+      ok: () => save.giftDay !== today(), buy: () => { save.giftDay = today(); save.coins += 30; } },
+    { title: 'MÜNZBEUTEL', big: COIN + '150', desc: 'Für Upgrades deiner Brawler.', btn: () => GEM + '15', ok: () => save.gems >= 15, buy: () => { save.gems -= 15; save.coins += 150; } },
+    { title: 'MÜNZKISTE', big: COIN + '400', desc: 'Das beste Angebot!', btn: () => GEM + '35', ok: () => save.gems >= 35, buy: () => { save.gems -= 35; save.coins += 400; } },
+  ];
+  for (const o of offers) {
+    const card = document.createElement('div');
+    card.className = 'offer';
+    card.innerHTML = `<div class="txt">${o.title}</div><div class="big txt">${o.big}</div><p>${o.desc}</p><button class="btn ${o.ok() ? 'btn-green' : 'btn-gray'} txt">${o.btn()}</button>`;
+    card.querySelector('button').onclick = () => { if (!o.ok()) return; o.buy(); persist(); refreshLobby(); buildShop(); };
+    el.appendChild(card);
+  }
+}
+function buildQuests() {
+  const el = $('questList'); el.innerHTML = '';
+  for (const q of save.quests) {
+    const card = document.createElement('div');
+    card.className = 'quest';
+    card.innerHTML = `<div class="qt txt">${QUEST_TYPES[q.k].txt(q.goal)}</div><div class="bar"><i style="width:${clamp(q.prog / q.goal * 100, 0, 100)}%"></i></div>
+      <div class="qr"><span>${Math.min(q.prog, q.goal)} / ${q.goal}</span><span>${COIN} ${q.coins} · XP ${q.xp}</span></div>`;
+    el.appendChild(card);
+  }
+}
+$('shopBtn').onclick = () => { buildShop(); show('shopSel'); };
+$('questBtn').onclick = () => { buildQuests(); show('questSel'); };
+$('newsBtn').onclick = () => { save.newsSeen = NEWS_VERSION; persist(); refreshLobby(); show('newsSel'); };
+$('profileBtn').onclick = $('profileBtn2').onclick = () => {
+  $('nameInput').value = save.name;
+  $('profileStats').innerHTML = `Level ${save.plevel} · ${totalTrophies()} Trophäen<br>${BRAWLER_KEYS.filter(isUnlocked).length} von ${BRAWLER_KEYS.length} Brawlern freigeschaltet`;
+  show('profileSel');
+};
+$('nameSave').onclick = () => {
+  const n = $('nameInput').value.trim().slice(0, 16);
+  if (n) { save.name = n; persist(); }
+  refreshLobby(); show('lobby');
+};
 
 function buildBrawlerGrid() {
   const grid = $('brawlerGrid'); grid.innerHTML = '';
@@ -1825,7 +2114,7 @@ function buildBrawlerGrid() {
 }
 
 $('brawlersBtn').onclick = () => { buildBrawlerGrid(); show('brawlerSel'); };
-$('modeBtn').onclick = $('modeBtn2').onclick = () => show('modeSel');
+$('modeBox').onclick = () => show('modeSel');
 document.querySelectorAll('[data-close]').forEach(b => b.onclick = () => show('lobby'));
 document.querySelectorAll('[data-mode]').forEach(card => card.onclick = () => { save.mode = card.dataset.mode; persist(); refreshLobby(); show('lobby'); });
 
@@ -1900,8 +2189,34 @@ function showResult() {
   save.trophies[player.type] = Math.max(0, before + delta);
   delta = save.trophies[player.type] - before;
   save.coins += coins;
+  // XP, daily wins and quests
+  const won = rank === 1 || (G.mode === 'sd' && rank <= 4);
+  let xp = (G.mode === 'sd' ? [34, 30, 26, 22, 18, 14, 12, 10, 8, 6][rank - 1] : rank === 1 ? 30 : rank === 3 ? 20 : 14) + G.stats.kills * 2;
+  const extra = [];
+  checkDaily();
+  if (won && save.daily.wins < DAILY_REWARDS.length) {
+    const r = DAILY_REWARDS[save.daily.wins++];
+    if (r.coins) save.coins += r.coins; else save.gems += r.gems;
+    extra.push('Täglicher Sieg: +' + (r.coins ? r.coins + ' Münzen' : r.gems + ' Edelsteine'));
+  }
+  const prog = { kills: G.stats.kills, matches: 1, top: won ? 1 : 0, cubes: G.stats.cubes, damage: Math.round(G.stats.damage), gems: G.stats.gems, super: G.stats.super };
+  save.quests = save.quests.filter(q => {
+    q.prog += prog[q.k] || 0;
+    if (q.prog < q.goal) return true;
+    save.coins += q.coins; xp += q.xp;
+    extra.push('Quest geschafft: ' + QUEST_TYPES[q.k].txt(q.goal) + ' (+' + q.coins + ' Münzen)');
+    return false;
+  });
+  checkDaily();
+  save.xp += xp;
+  while (save.xp >= xpNeed(save.plevel)) {
+    save.xp -= xpNeed(save.plevel); save.plevel++; save.gems += 3; save.coins += 25;
+    extra.push('LEVEL ' + save.plevel + '! +25 Münzen, +3 Edelsteine');
+  }
   persist();
   const fresh = BRAWLER_KEYS.filter(k => isUnlocked(k) && !unlockedBefore.includes(k));
+  $('resXp').innerHTML = '<span class="xpTag">XP</span>+' + xp;
+  $('resExtra').innerHTML = extra.map(e => '<div>' + e + '</div>').join('');
   $('resTitle').textContent = title;
   $('resTitle').style.color = color;
   $('resSub').textContent = sub + (fresh.length ? ' · NEUER BRAWLER: ' + fresh.map(k => BR[k].name.toUpperCase()).join(', ') + '!' : '');
@@ -1915,10 +2230,9 @@ function showResult() {
 const pv = $('preview'), pctx = pv.getContext('2d');
 function drawPreview(t) {
   pctx.setTransform(1, 0, 0, 1, 0, 0);
-  pctx.clearRect(0, 0, 560, 560);
-  pctx.fillStyle = 'rgba(0,0,0,.25)'; pctx.beginPath(); pctx.ellipse(280, 440, 160, 38, 0, 0, TAU); pctx.fill();
-  pctx.strokeStyle = 'rgba(255,255,255,.25)'; pctx.lineWidth = 8; pctx.beginPath(); pctx.ellipse(280, 440, 160, 38, 0, 0, TAU); pctx.stroke();
-  drawBrawlerFigure(pctx, save.sel, 280, 290, Math.PI / 2 + Math.sin(t * 0.8) * 0.9, 5.6, t, { noShadow: true });
+  pctx.clearRect(0, 0, 520, 520);
+  pctx.fillStyle = 'rgba(0,0,0,.3)'; pctx.beginPath(); pctx.ellipse(260, 420, 120, 30, 0, 0, TAU); pctx.fill();
+  drawBrawlerFigure(pctx, save.sel, 260, 270, Math.PI / 2 + Math.sin(t * 0.8) * 0.9, 5.2, t, { noShadow: true });
 }
 
 // =====================================================================
