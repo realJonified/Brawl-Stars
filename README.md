@@ -1,6 +1,6 @@
-# Brawl Stars – Fan Game
+# Brawl Arena – created by Jonified
 
-Ein Brawl-Stars-ähnliches Spiel direkt im Browser (PC & Handy). Alles steckt in einer einzigen Datei: `index.html`.
+Ein Arena-Brawler-Spiel direkt im Browser (PC & Handy). Alles steckt in einer einzigen Datei: `index.html`.
 
 ## ▶️ Jetzt spielen
 
@@ -39,4 +39,4 @@ Wie im echten Spiel: 3 Munitionsbalken, Super lädt sich durch Treffer auf, Lebe
 
 ## Hinweis
 
-Inoffizielles Fan-Projekt, nicht mit Supercell verbunden. Alle Grafiken werden im Code gezeichnet.
+Eigenes Projekt von Jonified, inspiriert von Arena-Brawler-Spielen. Nicht mit Supercell verbunden. Alle Grafiken werden im Code gezeichnet.
