@@ -4,6 +4,10 @@ Ein Arena-Brawler-Spiel direkt im Browser (PC & Handy). Alles steckt in einer ei
 
 ## ▶️ Jetzt spielen
 
+**🎮 https://claude.ai/artifact/QBrkN7Jvp4xofM7g6ZQFpz**
+
+Weitere Links:
+
 **👉 https://realjonified.github.io/Brawl-Stars/**
 
 Alternativ (funktioniert sofort, ohne GitHub Pages):
