@@ -8,86 +8,139 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Lilita+One&display=swap" rel="stylesheet">
 <style>
+  :root { color-scheme: dark; }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
   html, body { width: 100%; height: 100%; overflow: hidden; background: #0d1b4c; font-family: 'Lilita One', 'Arial Black', sans-serif; color: #fff; touch-action: none; }
-  canvas#c { position: fixed; inset: 0; display: block; }
-  .txt { text-shadow: 0 3px 0 #000, 2px 0 0 #000, -2px 0 0 #000, 0 -2px 0 #000; letter-spacing: .5px; }
-  .screen { position: fixed; inset: 0; display: none; }
+  /* #app is always landscape: on a portrait phone it is rotated 90° by script */
+  #app { position: fixed; left: 0; top: 0; overflow: hidden; transform-origin: 0 0; background: #0d1b4c; }
+  canvas#c { position: absolute; inset: 0; display: block; }
+  .txt { text-shadow: 0 .15rem 0 #000, .1rem 0 0 #000, -.1rem 0 0 #000, 0 -.1rem 0 #000; letter-spacing: .03rem; }
+  .screen { position: absolute; inset: 0; display: none; }
   .screen.show { display: block; }
-
-  /* ---------- Lobby ---------- */
-  #lobby { background: radial-gradient(ellipse at 50% 30%, #3d7bff 0%, #1d3fb8 45%, #0d1b4c 100%); overflow: hidden; }
-  #lobby::before { content: ''; position: absolute; inset: -50%; background: repeating-conic-gradient(from 0deg, rgba(255,255,255,.05) 0 10deg, transparent 10deg 20deg); animation: spin 60s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .topbar { position: absolute; top: 12px; left: 16px; right: 16px; display: flex; gap: 10px; align-items: center; justify-content: space-between; z-index: 2; }
-  .pill { background: rgba(0,0,0,.45); border: 3px solid #000; border-radius: 14px; padding: 6px 14px 6px 10px; font-size: 22px; display: flex; align-items: center; gap: 8px; }
-  .trophy { width: 28px; height: 28px; }
-  #previewWrap { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -58%); text-align: center; z-index: 1; }
-  #preview { width: min(300px, 60vw); height: min(300px, 60vw); }
-  #brawlerName { font-size: clamp(28px, 6vw, 44px); margin-top: -10px; }
-  #brawlerTrophies { font-size: 20px; display: inline-flex; align-items: center; gap: 6px; background: rgba(0,0,0,.4); padding: 3px 12px; border-radius: 10px; border: 2px solid #000; margin-top: 4px; }
-  .btn { cursor: pointer; border: 4px solid #000; border-radius: 16px; font-family: inherit; color: #fff; font-size: 24px; padding: 10px 18px; box-shadow: 0 6px 0 #000; transition: transform .08s; position: relative; }
-  .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #000; }
-  .btn-yellow { background: linear-gradient(#ffe45c, #ffb800); color: #fff; }
+  .btn { cursor: pointer; border: .22rem solid #000; border-radius: .8rem; font-family: inherit; color: #fff; font-size: 1.2rem; padding: .45rem .9rem; box-shadow: 0 .3rem 0 #000; transition: transform .08s; position: relative; }
+  .btn:active { transform: translateY(.2rem); box-shadow: 0 .1rem 0 #000; }
+  .btn:focus-visible { outline: .2rem solid #fff; }
+  .btn-yellow { background: linear-gradient(#ffe45c, #ffb800); }
   .btn-blue { background: linear-gradient(#5cb8ff, #2a6ff0); }
   .btn-purple { background: linear-gradient(#c58bff, #8040e8); }
   .btn-red { background: linear-gradient(#ff6b6b, #d92b2b); }
-  .bottombar { position: absolute; left: 16px; right: 16px; bottom: 16px; display: flex; gap: 12px; align-items: flex-end; justify-content: space-between; z-index: 2; flex-wrap: wrap; }
-  #playBtn { font-size: clamp(30px, 6vw, 46px); padding: 10px 46px; }
-  #modeBtn { display: flex; align-items: center; gap: 10px; min-width: 200px; }
-  #modeBtn small { display: block; font-size: 14px; opacity: .85; }
-  .modeIcon { width: 42px; height: 42px; border-radius: 10px; border: 3px solid #000; display: grid; place-items: center; font-size: 24px; }
+  .btn-green { background: linear-gradient(#7dff7a, #22b53a); }
+  .btn-gray { background: linear-gradient(#9aa3b5, #5d6577); }
+  .trophy { width: 1.4em; height: 1.4em; flex-shrink: 0; }
+  .pill { background: rgba(0,0,0,.45); border: .18rem solid #000; border-radius: .7rem; padding: .25rem .8rem .25rem .45rem; font-size: 1.15rem; display: flex; align-items: center; gap: .4rem; }
+
+  /* ---------- Lobby ---------- */
+  #lobby { background: radial-gradient(ellipse at 50% 40%, #3d7bff 0%, #1d3fb8 45%, #0d1b4c 100%); overflow: hidden; }
+  #lobby::before { content: ''; position: absolute; inset: -60%; background: repeating-conic-gradient(from 0deg, rgba(255,255,255,.05) 0 10deg, transparent 10deg 20deg); animation: spin 60s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { #lobby::before { animation: none; } }
+  .profile { position: absolute; top: .7rem; left: .7rem; display: flex; gap: .5rem; align-items: center; z-index: 2; }
+  .avatar { width: 3.3rem; height: 3.3rem; border: .2rem solid #000; border-radius: .6rem; background: linear-gradient(#5cb8ff, #2a6ff0); overflow: hidden; }
+  .avatar canvas { width: 100%; height: 100%; display: block; }
+  .road { display: flex; flex-direction: column; gap: .2rem; }
+  .road .row { display: flex; align-items: center; gap: .35rem; font-size: 1.25rem; }
+  .bar { width: 10rem; height: .8rem; background: #000; border-radius: .4rem; padding: .12rem; }
+  .bar i { display: block; height: 100%; background: linear-gradient(#ffe45c, #ffb800); border-radius: .3rem; }
+  .road small { font-size: .75rem; opacity: .9; }
+  .logo { position: absolute; top: .7rem; left: 50%; transform: translateX(-50%); text-align: center; z-index: 2; line-height: 1; }
+  .logo b { font-size: 1.7rem; display: block; color: #ffe45c; font-weight: normal; }
+  .logo span { font-size: .8rem; }
+  .currencies { position: absolute; top: .7rem; right: .7rem; display: flex; gap: .45rem; z-index: 2; }
+  .coin { width: 1.3em; height: 1.3em; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fff6a8, #ffc400 45%, #c98a00); border: .12rem solid #000; flex-shrink: 0; }
+  .leftmenu { position: absolute; left: .7rem; top: 55%; transform: translateY(-50%); display: flex; flex-direction: column; gap: .6rem; z-index: 2; }
+  .menuBtn { width: 5.6rem; padding: .4rem .2rem; font-size: .95rem; display: flex; flex-direction: column; align-items: center; gap: .1rem; }
+  .menuBtn .ic { font-size: 1.7rem; line-height: 1.1; }
+  .badge { position: absolute; top: -.5rem; right: -.5rem; background: #ff3b3b; border: .15rem solid #000; border-radius: 1rem; font-size: .8rem; padding: 0 .4rem; }
+  #previewWrap { position: absolute; left: 50%; top: 54%; transform: translate(-50%, -50%); text-align: center; z-index: 1; display: flex; flex-direction: column; align-items: center; }
+  #preview { width: 14rem; height: 14rem; }
+  #brawlerName { font-size: 2rem; margin-top: -1.2rem; display: flex; align-items: center; gap: .5rem; }
+  .lvl { display: inline-grid; place-items: center; min-width: 1.8rem; height: 1.8rem; padding: 0 .3rem; border-radius: .5rem; background: linear-gradient(#c58bff, #8040e8); border: .15rem solid #000; font-size: 1rem; }
+  #brawlerTrophies { font-size: 1.1rem; display: inline-flex; align-items: center; gap: .3rem; background: rgba(0,0,0,.4); padding: .1rem .7rem; border-radius: .6rem; border: .15rem solid #000; margin-top: .2rem; }
+  .playArea { position: absolute; right: .7rem; bottom: .8rem; display: flex; gap: .6rem; align-items: stretch; z-index: 2; }
+  #modeBtn { display: flex; align-items: center; gap: .5rem; text-align: left; }
+  #modeBtn small { display: block; font-size: .75rem; opacity: .9; }
+  .modeIcon { width: 2.4rem; height: 2.4rem; border-radius: .5rem; border: .18rem solid #000; display: grid; place-items: center; font-size: 1.3rem; flex-shrink: 0; }
+  #playBtn { font-size: 2.2rem; padding: .4rem 2.2rem; }
+  #help { font-family: Arial, sans-serif; font-weight: bold; font-size: .7rem; opacity: .8; position: absolute; left: .8rem; bottom: .8rem; z-index: 2; max-width: 40%; }
 
   /* ---------- Overlays ---------- */
-  .overlay { background: rgba(5,10,40,.92); z-index: 10; overflow-y: auto; padding: 70px 16px 30px; }
-  .overlay h1 { text-align: center; font-size: 38px; margin-bottom: 18px; }
-  .closeX { position: fixed; top: 14px; right: 16px; width: 48px; height: 48px; padding: 0; font-size: 26px; z-index: 11; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 14px; max-width: 980px; margin: 0 auto; }
-  .card { background: linear-gradient(#2c4fd8, #1a2f8f); border: 4px solid #000; border-radius: 16px; padding: 10px; cursor: pointer; text-align: center; box-shadow: 0 5px 0 #000; position: relative; }
-  .card.sel { outline: 4px solid #ffe45c; }
-  .card canvas { width: 120px; height: 120px; }
-  .card .nm { font-size: 24px; }
-  .card .role { font-size: 14px; opacity: .8; font-family: Arial, sans-serif; font-weight: bold; }
-  .card .st { font-size: 13px; font-family: Arial, sans-serif; font-weight: bold; margin-top: 6px; text-align: left; line-height: 1.5; background: rgba(0,0,0,.3); border-radius: 8px; padding: 6px 8px; }
-  .card .tr { position: absolute; top: 8px; left: 8px; font-size: 15px; display: flex; gap: 4px; align-items: center; }
-  .card .tr img, .card .tr svg { width: 18px; height: 18px; }
-  .modeCard { max-width: 520px; margin: 0 auto 16px; display: flex; gap: 16px; align-items: center; text-align: left; padding: 16px; }
-  .modeCard .modeIcon { width: 70px; height: 70px; font-size: 40px; flex-shrink: 0; }
-  .modeCard .nm { font-size: 30px; }
-  .modeCard p { font-family: Arial, sans-serif; font-weight: bold; font-size: 14px; opacity: .9; }
+  .overlay { background: rgba(5,10,40,.96); z-index: 10; padding: .8rem 1rem; }
+  .overlay.show { display: flex; flex-direction: column; }
+  .overlay h1 { text-align: center; font-size: 1.8rem; margin-bottom: .6rem; font-weight: normal; }
+  .closeX { position: absolute; top: .6rem; right: .8rem; width: 2.6rem; height: 2.6rem; padding: 0; font-size: 1.3rem; z-index: 11; }
+  .grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: .6rem; flex: 1; min-height: 0; }
+  .card { background: linear-gradient(#2c4fd8, #1a2f8f); border: .2rem solid #000; border-radius: .8rem; padding: .4rem; cursor: pointer; text-align: center; box-shadow: 0 .25rem 0 #000; position: relative; display: flex; flex-direction: column; align-items: center; gap: .15rem; min-width: 0; }
+  .card.sel { outline: .22rem solid #ffe45c; }
+  .card.locked { filter: grayscale(.85) brightness(.7); }
+  .card canvas { width: 5.2rem; height: 5.2rem; }
+  .card .nm { font-size: 1.25rem; }
+  .card .role { font-size: .7rem; opacity: .85; font-family: Arial, sans-serif; font-weight: bold; }
+  .card .st { font-size: .66rem; font-family: Arial, sans-serif; font-weight: bold; text-align: left; line-height: 1.35; background: rgba(0,0,0,.3); border-radius: .4rem; padding: .3rem .4rem; width: 100%; flex: 1; }
+  .card .tr { position: absolute; top: .35rem; left: .4rem; font-size: .85rem; display: flex; gap: .15rem; align-items: center; }
+  .card .lv { position: absolute; top: .3rem; right: .35rem; }
+  .card .up { font-size: .8rem; padding: .2rem .4rem; width: 100%; display: flex; align-items: center; justify-content: center; gap: .25rem; }
+  .card .lockTxt { font-size: .9rem; padding: .25rem 0; }
+  .modes { display: flex; gap: 1rem; justify-content: center; align-items: stretch; flex-wrap: wrap; }
+  .modeCard { width: 18rem; flex-direction: row; text-align: left; padding: .8rem; gap: .8rem; align-items: center; }
+  .modeCard .modeIcon { width: 4rem; height: 4rem; font-size: 2.2rem; }
+  .modeCard .nm { font-size: 1.5rem; }
+  .modeCard p { font-family: Arial, sans-serif; font-weight: bold; font-size: .75rem; opacity: .9; }
 
-  #result { z-index: 12; background: radial-gradient(ellipse at center, rgba(40,70,200,.95), rgba(5,10,40,.97)); text-align: center; padding-top: 12vh; }
-  #resTitle { font-size: clamp(46px, 11vw, 90px); }
-  #resSub { font-size: 26px; margin: 8px 0 20px; }
-  #resTrophies { font-size: 40px; display: inline-flex; align-items: center; gap: 10px; background: rgba(0,0,0,.4); border: 3px solid #000; border-radius: 16px; padding: 8px 22px; margin-bottom: 30px; }
-  #resTrophies svg { width: 42px; height: 42px; }
-  #help { font-family: Arial, sans-serif; font-weight: bold; font-size: 13px; opacity: .8; position: absolute; left: 50%; transform: translateX(-50%); bottom: 100px; text-align: center; width: 92%; z-index: 2; }
-  #exitBtn { position: fixed; top: 10px; left: 10px; width: 44px; height: 44px; padding: 0; font-size: 22px; z-index: 5; display: none; }
-  @media (max-height: 500px) {
-    #previewWrap { transform: translate(-50%, -55%); }
-    #preview { width: 170px; height: 170px; }
-    #help { display: none; }
-  }
+  /* ---------- Matchmaking / VS ---------- */
+  #match { z-index: 12; background: radial-gradient(ellipse at center, #2a55e0, #0d1b4c); text-align: center; }
+  #match.show { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .6rem; }
+  #matchTitle { font-size: 2.2rem; }
+  #matchCount { font-size: 3rem; color: #ffe45c; }
+  #matchSub { font-family: Arial, sans-serif; font-weight: bold; font-size: .9rem; opacity: .85; }
+  .vs { display: none; align-items: center; gap: 1.5rem; }
+  .vs.show { display: flex; }
+  .team { display: flex; gap: .4rem; }
+  .team div { display: flex; flex-direction: column; align-items: center; font-size: .9rem; border: .2rem solid #000; border-radius: .7rem; padding: .3rem; }
+  .team.blue div { background: linear-gradient(#5cb8ff, #2a6ff0); }
+  .team.red div { background: linear-gradient(#ff6b6b, #d92b2b); }
+  .team canvas { width: 4.5rem; height: 4.5rem; }
+  .vsTxt { font-size: 3rem; color: #ffe45c; }
+
+  /* ---------- Result ---------- */
+  #result { z-index: 12; background: radial-gradient(ellipse at center, rgba(40,70,200,.96), rgba(5,10,40,.98)); text-align: center; }
+  #result.show { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .5rem; }
+  #resTitle { font-size: 4rem; }
+  #resSub { font-size: 1.3rem; }
+  .rewards { display: flex; gap: .8rem; margin: .4rem 0 .8rem; }
+  .rewards > div { font-size: 2rem; display: inline-flex; align-items: center; gap: .5rem; background: rgba(0,0,0,.4); border: .18rem solid #000; border-radius: .8rem; padding: .3rem 1.1rem; }
+  #exitBtn { position: absolute; top: .5rem; left: .5rem; width: 2.5rem; height: 2.5rem; padding: 0; font-size: 1.1rem; z-index: 5; display: none; }
 </style>
 </head>
 <body>
+<div id="app">
 <canvas id="c"></canvas>
 <button id="exitBtn" class="btn btn-red txt" title="Verlassen">✕</button>
 
 <!-- Lobby -->
 <div id="lobby" class="screen show">
-  <div class="topbar">
-    <div class="pill txt"><span id="trophyIconTop"></span><span id="totalTrophies">0</span></div>
-    <div class="pill txt" style="font-size:18px">BRAWL ARENA <span style="color:#ffe45c;font-size:13px">created by Jonified</span></div>
-    <button id="brawlersBtn" class="btn btn-purple txt" style="font-size:20px;padding:6px 14px">BRAWLER</button>
+  <div class="profile">
+    <div class="avatar"><canvas id="avatar" width="120" height="120"></canvas></div>
+    <div class="road txt">
+      <div class="row"><span class="trophyIcon"></span><span id="totalTrophies">0</span></div>
+      <div class="bar"><i id="roadBar" style="width:0"></i></div>
+      <small id="roadTxt"></small>
+    </div>
+  </div>
+  <div class="logo txt"><b>BRAWL ARENA</b><span>created by Jonified</span></div>
+  <div class="currencies">
+    <div class="pill txt"><span class="coin"></span><span id="coins">0</span></div>
+  </div>
+  <div class="leftmenu">
+    <button id="brawlersBtn" class="btn btn-purple txt menuBtn"><span class="ic">🥊</span>BRAWLER<span id="upBadge" class="badge" hidden>!</span></button>
+    <button id="modeBtn2" class="btn btn-blue txt menuBtn"><span class="ic">📅</span>EVENTS</button>
   </div>
   <div id="previewWrap">
-    <canvas id="preview" width="600" height="600"></canvas>
-    <div id="brawlerName" class="txt">KIRA</div>
+    <canvas id="preview" width="560" height="560"></canvas>
+    <div id="brawlerName" class="txt"><span class="lvl" id="brawlerLvl">1</span><span id="brawlerNameTxt">KIRA</span></div>
     <div id="brawlerTrophies" class="txt"></div>
   </div>
-  <div id="help">PC: WASD bewegen · Maus zielen · Linksklick angreifen · Rechtsklick / Leertaste = SUPER<br>Handy: linker Joystick bewegen · rechts antippen/ziehen = Angriff · lila Knopf = SUPER</div>
-  <div class="bottombar">
+  <div id="help">PC: WASD bewegen · Maus zielen · Linksklick angreifen · Rechtsklick / Leertaste = SUPER</div>
+  <div class="playArea">
     <button id="modeBtn" class="btn btn-blue txt"><span id="modeIcon" class="modeIcon" style="background:#3fbf3f">💀</span><span><span id="modeName">SHOWDOWN</span><small>Modus wechseln</small></span></button>
     <button id="playBtn" class="btn btn-yellow txt">SPIELEN</button>
   </div>
@@ -104,18 +157,28 @@
 <div id="modeSel" class="screen overlay">
   <button class="btn btn-red txt closeX" data-close="modeSel">✕</button>
   <h1 class="txt">EVENTS</h1>
-  <div class="card modeCard" data-mode="sd"><div class="modeIcon" style="background:#3fbf3f">💀</div><div><div class="nm txt">SHOWDOWN</div><p>10 Brawler, nur einer überlebt! Zerstöre Kisten für Power-Würfel und hüte dich vor dem Giftgas.</p></div></div>
-  <div class="card modeCard" data-mode="gg"><div class="modeIcon" style="background:#b04dff">💎</div><div><div class="nm txt">JUWELENJAGD</div><p>3 gegen 3. Sammle Juwelen aus der Mine. Hält dein Team 10 Juwelen bis der Countdown abläuft, gewinnt ihr!</p></div></div>
+  <div class="modes">
+    <div class="card modeCard" data-mode="sd"><div class="modeIcon" style="background:#3fbf3f">💀</div><div><div class="nm txt">SHOWDOWN</div><p>10 Brawler, nur einer überlebt! Zerstöre Kisten für Power-Würfel und hüte dich vor dem Giftgas.</p></div></div>
+    <div class="card modeCard" data-mode="gg"><div class="modeIcon" style="background:#b04dff">💎</div><div><div class="nm txt">JUWELENJAGD</div><p>3 gegen 3. Sammle Juwelen aus der Mine. Hält dein Team 10 Juwelen bis der Countdown abläuft, gewinnt ihr!</p></div></div>
+  </div>
+</div>
+
+<!-- Matchmaking -->
+<div id="match" class="screen">
+  <div id="matchTitle" class="txt">SPIELER WERDEN GESUCHT</div>
+  <div id="matchCount" class="txt">1/10</div>
+  <div id="matchSub">Showdown</div>
+  <div id="vs" class="vs"><div class="team blue" id="teamBlue"></div><div class="vsTxt txt">VS</div><div class="team red" id="teamRed"></div></div>
 </div>
 
 <!-- Result -->
 <div id="result" class="screen">
   <div id="resTitle" class="txt">SIEG!</div>
   <div id="resSub" class="txt"></div>
-  <div id="resTrophies" class="txt"></div><br>
-  <button id="resBtn" class="btn btn-yellow txt" style="font-size:32px;padding:10px 40px">WEITER</button>
+  <div class="rewards"><div id="resTrophies" class="txt"></div><div id="resCoins" class="txt"></div></div>
+  <button id="resBtn" class="btn btn-yellow txt" style="font-size:1.8rem;padding:.4rem 2.4rem">WEITER</button>
 </div>
-
+</div>
 <script>
 'use strict';
 // =====================================================================
@@ -158,26 +221,46 @@ const BOT_NAMES = ['xXProXx', 'Jonas', 'Lina', 'Tobi', 'NoobMaster', 'Mia', 'Kev
 // =====================================================================
 //  Save data
 // =====================================================================
-let save = { trophies: {}, sel: 'kira', mode: 'sd' };
+// Trophy road: brawlers unlock at these total trophy counts
+const UNLOCK = { kira: 0, dash: 10, brutus: 25, luna: 50, boom: 80, frost: 120 };
+// Coins needed to go from power level i+1 to i+2 (max level 11)
+const UPGRADE_COST = [20, 30, 50, 80, 130, 200, 300, 420, 560, 750];
+const MAX_LEVEL = 11;
+let save = { trophies: {}, levels: {}, coins: 0, sel: 'kira', mode: 'sd' };
 try { const s = JSON.parse(localStorage.getItem('bsfan_save') || 'null'); if (s) save = Object.assign(save, s); } catch (e) {}
-for (const k of BRAWLER_KEYS) if (save.trophies[k] == null) save.trophies[k] = 0;
-if (!BR[save.sel]) save.sel = 'kira';
+for (const k of BRAWLER_KEYS) {
+  if (save.trophies[k] == null) save.trophies[k] = 0;
+  if (save.levels[k] == null) save.levels[k] = 1;
+}
 function persist() { try { localStorage.setItem('bsfan_save', JSON.stringify(save)); } catch (e) {} }
 const totalTrophies = () => BRAWLER_KEYS.reduce((s, k) => s + save.trophies[k], 0);
+const isUnlocked = k => totalTrophies() >= UNLOCK[k];
+if (!BR[save.sel] || !isUnlocked(save.sel)) save.sel = 'kira';
+const levelMult = lvl => 1 + 0.06 * (lvl - 1);
 
 // =====================================================================
 //  Canvas / camera
 // =====================================================================
 const cv = document.getElementById('c');
 const ctx = cv.getContext('2d');
-let VW = 0, VH = 0, DPR = 1, zoom = 1;
+const appEl = document.getElementById('app');
+const touchDevice = ('ontouchstart' in window) || (window.matchMedia && matchMedia('(pointer: coarse)').matches);
+let VW = 0, VH = 0, DPR = 1, zoom = 1, ROT = false;
 function resize() {
   DPR = Math.min(2, window.devicePixelRatio || 1);
-  VW = innerWidth; VH = innerHeight;
+  const w = innerWidth, h = innerHeight;
+  // The game is always landscape: on a portrait phone the whole app is turned sideways
+  ROT = touchDevice && h > w;
+  VW = ROT ? h : w; VH = ROT ? w : h;
+  appEl.style.width = VW + 'px'; appEl.style.height = VH + 'px';
+  appEl.style.transform = ROT ? `translateX(${w}px) rotate(90deg)` : 'none';
+  document.documentElement.style.fontSize = clamp(Math.min(VW / 60, VH / 25), 9, 20) + 'px';
   cv.width = VW * DPR; cv.height = VH * DPR;
   cv.style.width = VW + 'px'; cv.style.height = VH + 'px';
-  zoom = clamp(Math.min(VW / 1250, VH / 780), 0.42, 1.25);
+  zoom = clamp(Math.min(VW / 1250, VH / 700), 0.42, 1.25);
 }
+// screen (client) coordinates -> app coordinates
+function toApp(cx, cy) { return ROT ? { x: cy, y: innerWidth - cx } : { x: cx, y: cy }; }
 addEventListener('resize', resize);
 resize();
 
@@ -331,16 +414,17 @@ let G = null;
 let player = null;
 
 class Brawler {
-  constructor(type, team, x, y, isPlayer, name) {
+  constructor(type, team, x, y, isPlayer, name, level) {
     this.type = type; this.d = BR[type];
     this.team = team; this.x = x; this.y = y; this.spawn = { x, y };
     this.isPlayer = isPlayer; this.name = name;
+    this.level = level || 1; this.lvlMult = levelMult(this.level);
     this.r = type === 'brutus' ? 28 : 25;
-    this.maxHp = this.d.hp; this.hp = this.maxHp;
+    this.maxHp = Math.round(this.d.hp * this.lvlMult); this.hp = this.maxHp;
     this.ammo = 3; this.superCharge = 0;
     this.aim = team === 0 && G.mode === 'gg' ? -Math.PI / 2 : Math.PI / 2;
     this.mx = 0; this.my = 0; this.vx = 0; this.vy = 0;
-    this.alive = true; this.cubes = 0; this.dmgMult = 1; this.gems = 0;
+    this.alive = true; this.cubes = 0; this.dmgMult = this.lvlMult; this.gems = 0;
     this.lastHurt = -10; this.lastAttack = -10; this.revealT = 0; this.flash = 0;
     this.atkCD = 0; this.burst = null; this.leap = null; this.knock = null; this.slow = 0;
     this.respawnT = 0; this.gasT = 0; this.inBush = false; this.walkT = 0;
@@ -356,20 +440,22 @@ function newGame(mode, type) {
   G = {
     mode, t: 0, brawlers: [], pets: [], proj: [], parts: [], texts: [], booms: [], pickups: [],
     gasInset: 0, over: false, endT: 0, gemT: 2, countdown: null, cdTeam: -1, boxFlash: {}, shake: 0,
-    deadOrder: [], cam: { x: 0, y: 0 }, msg: null,
+    deadOrder: [], cam: { x: 0, y: 0 }, msg: null, feed: [], timeLeft: mode === 'gg' ? 150 : 0, paused: false,
   };
   const spawns = genMap(mode);
   const names = BOT_NAMES.slice().sort(() => Math.random() - .5);
+  const myLvl = save.levels[type];
+  const botLvl = () => clamp(myLvl + randi(-1, 1), 1, MAX_LEVEL);
   if (mode === 'sd') {
     spawns.sort(() => Math.random() - .5);
     for (let i = 0; i < 10; i++) {
       const s = spawns[i];
-      const b = new Brawler(i === 0 ? type : pick(BRAWLER_KEYS), i, s.x, s.y, i === 0, i === 0 ? 'Du' : names[i]);
+      const b = new Brawler(i === 0 ? type : pick(BRAWLER_KEYS), i, s.x, s.y, i === 0, i === 0 ? 'Du' : names[i], i === 0 ? myLvl : botLvl());
       G.brawlers.push(b);
     }
   } else {
     spawns.forEach((s, i) => {
-      const b = new Brawler(i === 1 ? type : pick(BRAWLER_KEYS), s.team, s.x, s.y, i === 1, i === 1 ? 'Du' : names[i]);
+      const b = new Brawler(i === 1 ? type : pick(BRAWLER_KEYS), s.team, s.x, s.y, i === 1, i === 1 ? 'Du' : names[i], i === 1 ? myLvl : botLvl());
       G.brawlers.push(b);
     });
   }
@@ -423,6 +509,8 @@ function kill(u, src) {
   for (let i = 0; i < 18; i++) particle(u.x, u.y, pick([u.d.color, u.d.dark, '#fff']), 320, .8, 9);
   G.pets.forEach(p => { if (p.owner === u) p.dead = true; });
   if (src && src.isBrawler && src.alive && src === player) G.msg = { text: 'K.O.!', t: 1.1, small: true };
+  G.feed.unshift({ a: src && src.isBrawler ? src : null, b: u, t: 4 });
+  if (G.feed.length > 4) G.feed.length = 4;
   if (G.mode === 'sd') {
     const drop = Math.max(1, u.cubes);
     for (let i = 0; i < drop; i++) G.pickups.push({ type: 'cube', x: u.x + rand(-30, 30), y: u.y + rand(-30, 30), t: 0 });
@@ -707,7 +795,7 @@ function updatePickups(dt) {
       if ((b.x - k.x) ** 2 + (b.y - k.y) ** 2 < (b.r + 18) ** 2) {
         k.dead = true;
         if (k.type === 'cube') {
-          b.cubes++; b.maxHp += 400; b.hp += 400; b.dmgMult = 1 + 0.1 * b.cubes;
+          b.cubes++; b.maxHp += 400; b.hp += 400; b.dmgMult = b.lvlMult * (1 + 0.1 * b.cubes);
           if (b === player || canSee(player.team, b)) floatText(b.x, b.y - 60, '+1 ⬛', '#5dff6a');
         } else {
           b.gems++;
@@ -727,6 +815,7 @@ function updateMode(dt) {
     if (!player.alive) endGame(player.rank);
     else if (alive.length === 1) { player.rank = 1; endGame(1); }
   } else {
+    G.timeLeft -= dt;
     G.gemT -= dt;
     if (G.gemT <= 0 && G.pickups.filter(k => k.type === 'gem').length < 29) {
       G.gemT = 7;
@@ -746,6 +835,11 @@ function updateMode(dt) {
       if (G.countdown <= 0) endGame(lead === player.team ? 1 : 2);
       else if (Math.ceil(G.countdown) !== before && G.countdown < 5.5) G.msg = { text: String(Math.ceil(G.countdown)), t: 0.6, small: true };
     }
+    // Match time over (and no countdown running): most gems wins, equal = draw
+    if (!G.over && G.timeLeft <= 0 && G.countdown == null) {
+      const mine = g[player.team], their = g[1 - player.team];
+      endGame(mine > their ? 1 : mine < their ? 2 : 3);
+    }
   }
 }
 
@@ -753,7 +847,7 @@ function endGame(rank) {
   if (G.over) return;
   G.over = true; G.endT = 2.2; G.finalRank = rank;
   if (G.mode === 'sd') G.msg = { text: rank === 1 ? 'SIEG!' : rank + '. PLATZ', t: 3 };
-  else G.msg = { text: rank === 1 ? 'SIEG!' : 'NIEDERLAGE', t: 3 };
+  else G.msg = { text: rank === 1 ? 'SIEG!' : rank === 3 ? 'UNENTSCHIEDEN' : 'NIEDERLAGE', t: 3 };
 }
 
 function updateEffects(dt) {
@@ -766,6 +860,8 @@ function updateEffects(dt) {
   for (const k in G.boxFlash) { G.boxFlash[k] -= dt; if (G.boxFlash[k] <= 0) delete G.boxFlash[k]; }
   G.shake = Math.max(0, G.shake - dt * 30);
   if (G.msg) { G.msg.t -= dt; if (G.msg.t <= 0) G.msg = null; }
+  for (const f of G.feed) f.t -= dt;
+  G.feed = G.feed.filter(f => f.t > 0);
 }
 
 // =====================================================================
@@ -918,19 +1014,20 @@ function btnPos() {
 }
 addEventListener('keydown', e => {
   keys[e.code] = true;
-  if (!G || G.over || !player) return;
+  if (!G || G.over || G.paused || !player) return;
   if (e.code === 'Space' || e.code === 'KeyE') { const a = mouseAim(); trySuper(player, a.ang, a.d); e.preventDefault(); }
   if (e.code === 'KeyQ') { const a = autoAim(player, player.d.range); tryAttack(player, a.ang, a.d); }
 });
 addEventListener('keyup', e => { keys[e.code] = false; });
 cv.addEventListener('contextmenu', e => e.preventDefault());
-cv.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; mouse.has = true; });
+cv.addEventListener('mousemove', e => { const p = toApp(e.clientX, e.clientY); mouse.x = p.x; mouse.y = p.y; mouse.has = true; });
 cv.addEventListener('mousedown', e => {
-  mouse.x = e.clientX; mouse.y = e.clientY; mouse.has = true;
-  if (!G || G.over || !player) return;
+  const mp = toApp(e.clientX, e.clientY);
+  mouse.x = mp.x; mouse.y = mp.y; mouse.has = true;
+  if (!G || G.over || G.paused || !player) return;
   const bp = btnPos();
   const a = mouseAim();
-  if (e.button === 2 || Math.hypot(e.clientX - bp.sup.x, e.clientY - bp.sup.y) < bp.sup.r) trySuper(player, a.ang, a.d);
+  if (e.button === 2 || Math.hypot(mp.x - bp.sup.x, mp.y - bp.sup.y) < bp.sup.r) trySuper(player, a.ang, a.d);
   else if (e.button === 0) { mouse.down = true; tryAttack(player, a.ang, a.d); }
 });
 addEventListener('mouseup', e => { if (e.button === 0) mouse.down = false; });
@@ -960,10 +1057,10 @@ function autoAim(b, range) {
 
 cv.addEventListener('touchstart', e => {
   e.preventDefault(); isTouch = true;
-  if (!G || G.over) return;
+  if (!G || G.over || G.paused) return;
   const bp = btnPos();
   for (const t of e.changedTouches) {
-    const x = t.clientX, y = t.clientY;
+    const { x, y } = toApp(t.clientX, t.clientY);
     if (!sticks.sup && Math.hypot(x - bp.sup.x, y - bp.sup.y) < bp.sup.r * 1.3) sticks.sup = { id: t.identifier, ox: bp.sup.x, oy: bp.sup.y, x, y, max: bp.sup.r * 1.4 };
     else if (x > VW * 0.5 && !sticks.atk) sticks.atk = { id: t.identifier, ox: bp.atk.x, oy: bp.atk.y, sx: x, sy: y, x: bp.atk.x, y: bp.atk.y, max: bp.atk.r * 1.2, moved: false };
     else if (x <= VW * 0.5 && !sticks.move) sticks.move = { id: t.identifier, ox: x, oy: y, x, y, max: 60 };
@@ -975,13 +1072,14 @@ cv.addEventListener('touchmove', e => {
     for (const k of ['move', 'atk', 'sup']) {
       const s = sticks[k];
       if (!s || s.id !== t.identifier) continue;
+      const tp = toApp(t.clientX, t.clientY);
       if (k === 'atk') {
-        const dx = t.clientX - s.sx, dy = t.clientY - s.sy;
+        const dx = tp.x - s.sx, dy = tp.y - s.sy;
         if (Math.hypot(dx, dy) > 14) s.moved = true;
         const m = Math.min(Math.hypot(dx, dy), s.max), a = Math.atan2(dy, dx);
         s.x = s.ox + Math.cos(a) * m; s.y = s.oy + Math.sin(a) * m;
       } else {
-        const dx = t.clientX - s.ox, dy = t.clientY - s.oy;
+        const dx = tp.x - s.ox, dy = tp.y - s.oy;
         const m = Math.min(Math.hypot(dx, dy), s.max), a = Math.atan2(dy, dx);
         s.x = s.ox + Math.cos(a) * m; s.y = s.oy + Math.sin(a) * m;
         if (k === 'sup' && Math.hypot(dx, dy) > 14) s.moved = true;
@@ -996,7 +1094,7 @@ function touchEnd(e) {
       const s = sticks[k];
       if (!s || s.id !== t.identifier) continue;
       sticks[k] = null;
-      if (!G || G.over || !player || !player.alive) continue;
+      if (!G || G.over || G.paused || !player || !player.alive) continue;
       if (k === 'atk' || k === 'sup') {
         const range = k === 'atk' ? player.d.range : player.d.superRange;
         let aim;
@@ -1537,87 +1635,199 @@ function drawHUD(c) {
   // big message
   if (G.msg) {
     const k = G.msg.t;
-    const size = (G.msg.small ? 48 : 80) * (1 + Math.max(0, 0.3 - (k % 10)) * 0);
+    const size = (G.msg.small ? 48 : 80) * clamp(VH / 650, 0.55, 1);
     c.globalAlpha = Math.min(1, k * 2);
     txt(c, G.msg.text, VW / 2, VH * 0.32, size, G.msg.text.includes('SIEG') || G.msg.text === 'K.O.!' ? '#ffd23f' : '#fff', 'center', 8);
     c.globalAlpha = 1;
   }
-  // minimap-ish: power cubes of player
+  // power cubes of player
   if (G.mode === 'sd') {
     c.fillStyle = 'rgba(0,0,0,.45)'; roundRect(c, VW - 96, 12, 82, 40, 10); c.fill();
     drawCube(c, VW - 74, 32, 1.1); txt(c, String(player.cubes), VW - 40, 32, 24, '#9dff9d');
+  } else {
+    // match timer
+    const tl = Math.max(0, Math.ceil(G.timeLeft));
+    c.fillStyle = 'rgba(0,0,0,.45)'; roundRect(c, VW - 96, 12, 82, 40, 10); c.fill();
+    txt(c, Math.floor(tl / 60) + ':' + String(tl % 60).padStart(2, '0'), VW - 55, 32, 24, tl <= 20 ? '#ff5c5c' : '#fff');
   }
+  // kill feed
+  let fy = 72;
+  for (const f of G.feed) {
+    c.globalAlpha = Math.min(1, f.t);
+    const nameCol = b => b === player ? '#3cff5a' : b.team === player.team ? '#5cb8ff' : '#ff6b6b';
+    const killer = f.a ? f.a.name : (G.mode === 'sd' ? 'Gas' : '?');
+    c.font = "15px 'Lilita One', 'Arial Black', sans-serif";
+    const wb = c.measureText(f.b.name).width, wk = c.measureText(killer).width;
+    const w = wb + wk + 46;
+    c.fillStyle = 'rgba(0,0,0,.45)'; roundRect(c, VW - 14 - w, fy - 12, w, 24, 8); c.fill();
+    txt(c, f.b.name, VW - 22, fy, 15, nameCol(f.b), 'right', 3);
+    txt(c, '💥', VW - 26 - wb - 10, fy, 14, '#fff', 'center', 0);
+    txt(c, killer, VW - 46 - wb, fy, 15, f.a ? nameCol(f.a) : '#9dff9d', 'right', 3);
+    fy += 28;
+  }
+  c.globalAlpha = 1;
 }
 
 // =====================================================================
 //  Lobby & screens
 // =====================================================================
 const $ = id => document.getElementById(id);
-const screens = ['lobby', 'brawlerSel', 'modeSel', 'result'];
-function show(id) { for (const s of screens) $(s).classList.toggle('show', s === id || (id !== 'lobby' && id !== 'result' && s === 'lobby')); }
+const screens = ['lobby', 'brawlerSel', 'modeSel', 'match', 'result'];
+function show(id) {
+  const overLobby = id === 'brawlerSel' || id === 'modeSel';
+  for (const s of screens) $(s).classList.toggle('show', s === id || (overLobby && s === 'lobby'));
+}
 const MODES = { sd: { name: 'SHOWDOWN', icon: '💀', col: '#3fbf3f' }, gg: { name: 'JUWELENJAGD', icon: '💎', col: '#b04dff' } };
+const COIN = '<span class="coin"></span>';
+document.querySelectorAll('.trophyIcon').forEach(e => e.innerHTML = TROPHY_SVG);
+if (touchDevice) $('help').hidden = true;
+
+function drawIcon(canvas, k, scale) {
+  const c = canvas.getContext('2d');
+  c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, canvas.width, canvas.height);
+  const s = canvas.width / 120;
+  c.scale(s, s);
+  drawBrawlerFigure(c, k, 60, 66, Math.PI / 2 - 0.5, scale || 1.6, 0, { noShadow: true });
+}
+const canUpgrade = k => isUnlocked(k) && save.levels[k] < MAX_LEVEL && save.coins >= UPGRADE_COST[save.levels[k] - 1];
 
 function refreshLobby() {
   const d = BR[save.sel];
-  $('brawlerName').textContent = d.name.toUpperCase();
-  $('brawlerTrophies').innerHTML = TROPHY_SVG.replace('class="trophy"', 'style="width:22px;height:22px"') + save.trophies[save.sel];
-  $('totalTrophies').textContent = totalTrophies();
+  $('brawlerNameTxt').textContent = d.name.toUpperCase();
+  $('brawlerLvl').textContent = save.levels[save.sel];
+  $('brawlerTrophies').innerHTML = TROPHY_SVG + save.trophies[save.sel];
+  const tot = totalTrophies();
+  $('totalTrophies').textContent = tot;
+  $('coins').textContent = save.coins;
+  // trophy road: next locked brawler
+  const next = BRAWLER_KEYS.filter(k => UNLOCK[k] > tot).sort((a, b) => UNLOCK[a] - UNLOCK[b])[0];
+  if (next) {
+    const prev = Math.max(0, ...BRAWLER_KEYS.map(k => UNLOCK[k]).filter(v => v <= tot));
+    $('roadBar').style.width = clamp((tot - prev) / (UNLOCK[next] - prev) * 100, 0, 100) + '%';
+    $('roadTxt').textContent = 'Nächster Brawler: ' + BR[next].name + ' bei ' + UNLOCK[next];
+  } else {
+    $('roadBar').style.width = '100%';
+    $('roadTxt').textContent = 'Alle Brawler freigeschaltet!';
+  }
+  $('upBadge').hidden = !BRAWLER_KEYS.some(canUpgrade);
   const m = MODES[save.mode];
   $('modeName').textContent = m.name; $('modeIcon').textContent = m.icon; $('modeIcon').style.background = m.col;
+  drawIcon($('avatar'), save.sel, 1.9);
 }
-$('trophyIconTop').innerHTML = TROPHY_SVG;
 
 function buildBrawlerGrid() {
   const grid = $('brawlerGrid'); grid.innerHTML = '';
   for (const k of BRAWLER_KEYS) {
-    const d = BR[k];
+    const d = BR[k], open = isUnlocked(k), lvl = save.levels[k];
     const card = document.createElement('div');
-    card.className = 'card' + (k === save.sel ? ' sel' : '');
-    card.innerHTML = `<div class="tr txt">${TROPHY_SVG}${save.trophies[k]}</div><canvas width="240" height="240"></canvas>
+    card.className = 'card' + (k === save.sel ? ' sel' : '') + (open ? '' : ' locked');
+    let bottom;
+    if (!open) bottom = `<div class="lockTxt txt">🔒 ab ${UNLOCK[k]} 🏆</div>`;
+    else if (lvl >= MAX_LEVEL) bottom = `<button class="btn btn-gray txt up" disabled>MAX</button>`;
+    else bottom = `<button class="btn ${canUpgrade(k) ? 'btn-green' : 'btn-gray'} txt up">UPGRADE ${COIN}${UPGRADE_COST[lvl - 1]}</button>`;
+    card.innerHTML = `<div class="tr txt">${TROPHY_SVG}${save.trophies[k]}</div><span class="lvl lv txt">${lvl}</span>
+      <canvas width="200" height="200"></canvas>
       <div class="nm txt">${d.name.toUpperCase()}</div><div class="role">${d.role}</div>
-      <div class="st">❤️ ${d.hp} LP<br>🔫 ${d.atk}<br>⭐ ${d.sup}</div>`;
-    const cc = card.querySelector('canvas').getContext('2d');
-    cc.scale(2, 2);
-    drawBrawlerFigure(cc, k, 60, 66, Math.PI / 2 - 0.5, 1.6, 0, {});
-    card.onclick = () => { save.sel = k; persist(); refreshLobby(); show('lobby'); };
+      <div class="st">❤️ ${Math.round(d.hp * levelMult(lvl))} LP<br>🔫 ${d.atk}<br>⭐ ${d.sup}</div>${bottom}`;
+    drawIcon(card.querySelector('canvas'), k);
+    card.onclick = () => {
+      if (!open) return;
+      save.sel = k; persist(); refreshLobby(); show('lobby');
+    };
+    const up = card.querySelector('.up');
+    if (up && !up.disabled) up.onclick = e => {
+      e.stopPropagation();
+      if (!canUpgrade(k)) { up.textContent = 'ZU WENIG MÜNZEN'; return; }
+      save.coins -= UPGRADE_COST[lvl - 1]; save.levels[k]++; persist();
+      refreshLobby(); buildBrawlerGrid();
+    };
     grid.appendChild(card);
   }
 }
 
 $('brawlersBtn').onclick = () => { buildBrawlerGrid(); show('brawlerSel'); };
-$('modeBtn').onclick = () => show('modeSel');
+$('modeBtn').onclick = $('modeBtn2').onclick = () => show('modeSel');
 document.querySelectorAll('[data-close]').forEach(b => b.onclick = () => show('lobby'));
 document.querySelectorAll('[data-mode]').forEach(card => card.onclick = () => { save.mode = card.dataset.mode; persist(); refreshLobby(); show('lobby'); });
+
+// Matchmaking -> (VS screen) -> game
+let matchTimer = null;
 $('playBtn').onclick = () => {
-  for (const s of screens) $(s).classList.remove('show');
-  $('exitBtn').style.display = 'block';
+  const total = save.mode === 'sd' ? 10 : 6;
+  show('match');
+  $('vs').classList.remove('show');
+  $('matchTitle').textContent = 'SPIELER WERDEN GESUCHT';
+  $('matchSub').textContent = MODES[save.mode].name + ' · ' + BR[save.sel].name;
+  $('matchCount').hidden = false;
+  let n = 1;
+  $('matchCount').textContent = n + '/' + total;
+  clearInterval(matchTimer);
+  matchTimer = setInterval(() => {
+    n = Math.min(total, n + randi(1, 3));
+    $('matchCount').textContent = n + '/' + total;
+    if (n >= total) { clearInterval(matchTimer); setTimeout(startMatch, 350); }
+  }, 260);
+};
+function startMatch() {
   sticks.move = sticks.atk = sticks.sup = null; mouse.down = false;
   newGame(save.mode, save.sel);
-};
+  G.paused = true;
+  const go = () => {
+    if (!G) return;
+    G.paused = false;
+    for (const s of screens) $(s).classList.remove('show');
+    $('exitBtn').style.display = 'block';
+  };
+  if (G.mode === 'gg') {
+    $('matchTitle').textContent = 'JUWELENJAGD';
+    $('matchCount').hidden = true;
+    $('matchSub').textContent = '';
+    for (const [id, team] of [['teamBlue', player.team], ['teamRed', 1 - player.team]]) {
+      const el = $(id); el.innerHTML = '';
+      for (const b of G.brawlers.filter(b => b.team === team)) {
+        const div = document.createElement('div');
+        div.className = 'txt';
+        div.innerHTML = '<canvas width="120" height="120"></canvas>' + b.name;
+        drawIcon(div.querySelector('canvas'), b.type, 1.7);
+        el.appendChild(div);
+      }
+    }
+    $('vs').classList.add('show');
+    setTimeout(go, 2000);
+  } else go();
+}
 $('exitBtn').onclick = () => { G = null; $('exitBtn').style.display = 'none'; refreshLobby(); show('lobby'); };
 $('resBtn').onclick = () => { G = null; refreshLobby(); show('lobby'); };
 
 function showResult() {
   G.resultShown = true;
   const rank = G.finalRank;
-  let delta, title, sub;
+  let delta, coins, title, sub, color;
   if (G.mode === 'sd') {
     delta = [10, 8, 7, 6, 4, 2, 0, -1, -2, -3][rank - 1];
+    coins = [40, 32, 26, 20, 15, 11, 8, 6, 4, 2][rank - 1];
     title = rank === 1 ? 'SIEG!' : rank + '. PLATZ';
     sub = 'Showdown · ' + BR[player.type].name;
+    color = rank === 1 ? '#ffd23f' : rank <= 4 ? '#fff' : '#ff6b6b';
   } else {
-    delta = rank === 1 ? 8 : -4;
-    title = rank === 1 ? 'SIEG!' : 'NIEDERLAGE';
+    delta = rank === 1 ? 8 : rank === 3 ? 0 : -4;
+    coins = rank === 1 ? 24 : rank === 3 ? 14 : 8;
+    title = rank === 1 ? 'SIEG!' : rank === 3 ? 'UNENTSCHIEDEN' : 'NIEDERLAGE';
     sub = 'Juwelenjagd · ' + BR[player.type].name;
+    color = rank === 1 ? '#ffd23f' : rank === 3 ? '#fff' : '#ff6b6b';
   }
+  const unlockedBefore = BRAWLER_KEYS.filter(isUnlocked);
   const before = save.trophies[player.type];
   save.trophies[player.type] = Math.max(0, before + delta);
   delta = save.trophies[player.type] - before;
+  save.coins += coins;
   persist();
+  const fresh = BRAWLER_KEYS.filter(k => isUnlocked(k) && !unlockedBefore.includes(k));
   $('resTitle').textContent = title;
-  $('resTitle').style.color = rank === 1 ? '#ffd23f' : rank <= 4 && G.mode === 'sd' ? '#fff' : '#ff6b6b';
-  $('resSub').textContent = sub;
+  $('resTitle').style.color = color;
+  $('resSub').textContent = sub + (fresh.length ? ' · NEUER BRAWLER: ' + fresh.map(k => BR[k].name.toUpperCase()).join(', ') + '!' : '');
   $('resTrophies').innerHTML = TROPHY_SVG + (delta >= 0 ? '+' : '') + delta;
+  $('resCoins').innerHTML = COIN + '+' + coins;
   $('exitBtn').style.display = 'none';
   show('result');
 }
@@ -1626,10 +1836,10 @@ function showResult() {
 const pv = $('preview'), pctx = pv.getContext('2d');
 function drawPreview(t) {
   pctx.setTransform(1, 0, 0, 1, 0, 0);
-  pctx.clearRect(0, 0, 600, 600);
-  pctx.fillStyle = 'rgba(0,0,0,.25)'; pctx.beginPath(); pctx.ellipse(300, 470, 170, 40, 0, 0, TAU); pctx.fill();
-  pctx.strokeStyle = 'rgba(255,255,255,.25)'; pctx.lineWidth = 8; pctx.beginPath(); pctx.ellipse(300, 470, 170, 40, 0, 0, TAU); pctx.stroke();
-  drawBrawlerFigure(pctx, save.sel, 300, 330, Math.PI / 2 + Math.sin(t * 0.8) * 0.9, 6, t, { noShadow: true });
+  pctx.clearRect(0, 0, 560, 560);
+  pctx.fillStyle = 'rgba(0,0,0,.25)'; pctx.beginPath(); pctx.ellipse(280, 440, 160, 38, 0, 0, TAU); pctx.fill();
+  pctx.strokeStyle = 'rgba(255,255,255,.25)'; pctx.lineWidth = 8; pctx.beginPath(); pctx.ellipse(280, 440, 160, 38, 0, 0, TAU); pctx.stroke();
+  drawBrawlerFigure(pctx, save.sel, 280, 310, Math.PI / 2 + Math.sin(t * 0.8) * 0.9, 5.6, t, { noShadow: true });
 }
 
 // =====================================================================
@@ -1639,7 +1849,7 @@ let last = performance.now();
 function frame(ts) {
   const dt = Math.min(0.05, (ts - last) / 1000); last = ts;
   if (G) {
-    update(dt);
+    if (!G.paused) update(dt);
     render();
   } else if ($('lobby').classList.contains('show')) {
     drawPreview(ts / 1000);
