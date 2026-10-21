@@ -139,7 +139,7 @@
     <div id="brawlerName" class="txt"><span class="lvl" id="brawlerLvl">1</span><span id="brawlerNameTxt">KIRA</span></div>
     <div id="brawlerTrophies" class="txt"></div>
   </div>
-  <div id="help">PC: WASD bewegen · Maus zielen · Linksklick angreifen · Rechtsklick / Leertaste = SUPER</div>
+  <div id="help">PC: WASD bewegen · Maus zielen · Linksklick angreifen · Rechtsklick / Leertaste = SUPER · F = Gadget · T = Emote</div>
   <div class="playArea">
     <button id="modeBtn" class="btn btn-blue txt"><span id="modeIcon" class="modeIcon" style="background:#3fbf3f">💀</span><span><span id="modeName">SHOWDOWN</span><small>Modus wechseln</small></span></button>
     <button id="playBtn" class="btn btn-yellow txt">SPIELEN</button>
@@ -198,22 +198,22 @@ const TROPHY_SVG = '<svg viewBox="0 0 32 32" class="trophy"><path d="M8 4h16v6a8
 const BR = {
   kira:   { name: 'Kira',   role: 'Kämpferin',    hp: 3800, speed: 205, reload: 1.45, range: 380, superRange: 440, superCost: 3400,
             color: '#ff6fb5', dark: '#a83b78', aim: 'cone', superAim: 'cone', prefer: 0.55,
-            atk: 'Schrotflinte: 5 Kugeln à 300', sup: 'Superschuss: zerstört Wände, stößt weg' },
+            atk: 'Schrotflinte: 5 Kugeln à 300', sup: 'Superschuss: zerstört Wände, stößt weg', gad: 'Turbosprint nach vorne' },
   dash:   { name: 'Dash',   role: 'Schütze',      hp: 2900, speed: 205, reload: 1.5, range: 600, superRange: 720, superCost: 3800,
             color: '#ffcf3f', dark: '#9a6d10', aim: 'line', superAim: 'line', prefer: 0.8,
-            atk: 'Revolver: 6 Schüsse à 330', sup: 'Kugelhagel: 12 Schüsse, zerstört Wände' },
+            atk: 'Revolver: 6 Schüsse à 330', sup: 'Kugelhagel: 12 Schüsse, zerstört Wände', gad: 'Sofort nachladen' },
   brutus: { name: 'Brutus', role: 'Panzer',       hp: 6200, speed: 225, reload: 1.15, range: 160, superRange: 480, superCost: 3000,
             color: '#3f8cff', dark: '#1d4a99', aim: 'line', superAim: 'leap', prefer: 0.1,
-            atk: 'Fäuste: 4 Schläge à 420', sup: 'Flying Elbow: springt & zerschmettert' },
+            atk: 'Fäuste: 4 Schläge à 420', sup: 'Flying Elbow: springt & zerschmettert', gad: 'Heilt 30 % Leben' },
   luna:   { name: 'Luna',   role: 'Beschwörerin', hp: 3600, speed: 205, reload: 1.1, range: 520, superRange: 400, superCost: 2800,
             color: '#8e5bff', dark: '#4c2a9c', aim: 'wave', superAim: 'lob', prefer: 0.7,
-            atk: 'Schockwelle: 900, durchdringend', sup: 'Ruft einen Bären herbei' },
+            atk: 'Schockwelle: 900, durchdringend', sup: 'Ruft einen Bären herbei', gad: 'Heilt dich und den Bären' },
   boom:   { name: 'Boom',   role: 'Werfer',       hp: 2800, speed: 200, reload: 1.6, range: 520, superRange: 540, superCost: 3400,
             color: '#ff7b2e', dark: '#9c3d0a', aim: 'lob', superAim: 'lob', prefer: 0.85,
-            atk: '2 Dynamitstangen à 650 (über Wände)', sup: 'Riesenfass: 2000 Schaden, sprengt Wände' },
+            atk: '2 Dynamitstangen à 650 (über Wände)', sup: 'Riesenfass: 2000 Schaden, sprengt Wände', gad: 'Explosion um dich herum' },
   frost:  { name: 'Frost',  role: 'Scharfschützin', hp: 2600, speed: 205, reload: 2.0, range: 760, superRange: 450, superCost: 3000,
             color: '#5ee6ff', dark: '#1d8aa6', aim: 'line', superAim: 'lob', prefer: 0.95,
-            atk: 'Eiskristall: mehr Schaden auf Distanz', sup: 'Eissturm: Flächenschaden + verlangsamt' },
+            atk: 'Eiskristall: mehr Schaden auf Distanz', sup: 'Eissturm: Flächenschaden + verlangsamt', gad: 'Frostring verlangsamt Gegner' },
 };
 const BRAWLER_KEYS = Object.keys(BR);
 const BOT_NAMES = ['xXProXx', 'Jonas', 'Lina', 'Tobi', 'NoobMaster', 'Mia', 'Kevin', 'Sarah', 'Felix', 'Emil', 'BrawlKing', 'Luca', 'Nele', 'Ben', 'Hannah', 'Paul', 'TryHard99', 'Leni', 'Finn', 'Zoe'];
@@ -237,6 +237,8 @@ const totalTrophies = () => BRAWLER_KEYS.reduce((s, k) => s + save.trophies[k], 
 const isUnlocked = k => totalTrophies() >= UNLOCK[k];
 if (!BR[save.sel] || !isUnlocked(save.sel)) save.sel = 'kira';
 const levelMult = lvl => 1 + 0.06 * (lvl - 1);
+const GADGET_LEVEL = 7; // like in Brawl Stars, gadgets unlock at power level 7
+const EMOTES = ['😀', '😂', '👍', '😡', '😭', '😎'];
 
 // =====================================================================
 //  Canvas / camera
@@ -422,16 +424,19 @@ class Brawler {
     this.r = type === 'brutus' ? 28 : 25;
     this.maxHp = Math.round(this.d.hp * this.lvlMult); this.hp = this.maxHp;
     this.ammo = 3; this.superCharge = 0;
+    this.botDmg = isPlayer ? 1 : 0.7 + 0.3 * G.botLevel; // easier bots: less damage at low trophies
     this.aim = team === 0 && G.mode === 'gg' ? -Math.PI / 2 : Math.PI / 2;
     this.mx = 0; this.my = 0; this.vx = 0; this.vy = 0;
     this.alive = true; this.cubes = 0; this.dmgMult = this.lvlMult; this.gems = 0;
     this.lastHurt = -10; this.lastAttack = -10; this.revealT = 0; this.flash = 0;
     this.atkCD = 0; this.burst = null; this.leap = null; this.knock = null; this.slow = 0;
     this.respawnT = 0; this.gasT = 0; this.inBush = false; this.walkT = 0;
+    this.gadgets = this.level >= GADGET_LEVEL ? 3 : 0; this.gadCD = 0; this.emote = null;
     // AI
     this.thinkT = 0; this.fireT = rand(0.5, 1.5); this.side = Math.random() < .5 ? 1 : -1;
     this.goal = null; this.target = null; this.wander = null; this.stuckT = 0; this.lastPos = { x, y };
-    this.skill = rand(0.75, 1.1); this.strafeT = 0;
+    // bot skill 0..1: low trophies = easy bots (like Brawl Stars matchmaking)
+    this.skill = clamp(G.botLevel * rand(0.85, 1.15), 0.2, 0.95); this.strafeT = 0; this.react = 0; this.prevTarget = null;
   }
   get isBrawler() { return true; }
 }
@@ -440,6 +445,7 @@ function newGame(mode, type) {
   G = {
     mode, t: 0, brawlers: [], pets: [], proj: [], parts: [], texts: [], booms: [], pickups: [],
     gasInset: 0, over: false, endT: 0, gemT: 2, countdown: null, cdTeam: -1, boxFlash: {}, shake: 0,
+    botLevel: clamp(0.25 + totalTrophies() / 600, 0.25, 0.8),
     deadOrder: [], cam: { x: 0, y: 0 }, msg: null, feed: [], timeLeft: mode === 'gg' ? 150 : 0, paused: false,
   };
   const spawns = genMap(mode);
@@ -509,6 +515,7 @@ function kill(u, src) {
   for (let i = 0; i < 18; i++) particle(u.x, u.y, pick([u.d.color, u.d.dark, '#fff']), 320, .8, 9);
   G.pets.forEach(p => { if (p.owner === u) p.dead = true; });
   if (src && src.isBrawler && src.alive && src === player) G.msg = { text: 'K.O.!', t: 1.1, small: true };
+  if (src && src.isBrawler && src.alive && !src.isPlayer && Math.random() < 0.35) src.emote = { e: pick(['😂', '👍', '😎']), t: 2 };
   G.feed.unshift({ a: src && src.isBrawler ? src : null, b: u, t: 4 });
   if (G.feed.length > 4) G.feed.length = 4;
   if (G.mode === 'sd') {
@@ -530,7 +537,7 @@ function shoot(b, ang, o) {
   const c = Math.cos(ang), s = Math.sin(ang);
   G.proj.push({
     x: b.x + c * b.r * 0.7, y: b.y + s * b.r * 0.7, vx: c * o.speed, vy: s * o.speed, ang,
-    dist: 0, range: o.range, dmg: o.dmg * b.dmgMult, r: o.r || 8, owner: b, team: b.team,
+    dist: 0, range: o.range, dmg: o.dmg * b.dmgMult * b.botDmg, r: o.r || 8, owner: b, team: b.team,
     pierce: !!o.pierce, hit: new Set(), breakWalls: !!o.breakWalls, isSuper: !!o.isSuper,
     color: o.color || '#ffe066', knock: o.knock || 0, kind: o.kind || 'bullet', grow: o.grow || 0, slow: o.slow || 0,
   });
@@ -538,7 +545,7 @@ function shoot(b, ang, o) {
 function lob(b, tx, ty, o) {
   G.proj.push({
     lob: true, sx: b.x, sy: b.y, x: b.x, y: b.y, tx, ty, t: 0, dur: o.dur, owner: b, team: b.team,
-    dmg: o.dmg * b.dmgMult, radius: o.radius, breakWalls: !!o.breakWalls, isSuper: !!o.isSuper,
+    dmg: o.dmg * b.dmgMult * b.botDmg, radius: o.radius, breakWalls: !!o.breakWalls, isSuper: !!o.isSuper,
     kind: o.kind, slow: o.slow || 0, h: o.h || 120,
   });
 }
@@ -615,6 +622,25 @@ function trySuper(b, ang, d) {
   return true;
 }
 
+function tryGadget(b) {
+  if (!b.alive || b.gadgets <= 0 || b.gadCD > 0 || b.leap) return false;
+  b.gadgets--; b.gadCD = 4;
+  const heal = (u, n) => { u.hp = Math.min(u.maxHp, u.hp + n); if (u === player || canSee(player.team, u)) floatText(u.x, u.y - 60, '+' + Math.round(n), '#5dff6a'); };
+  switch (b.type) {
+    case 'kira': b.knock = { vx: Math.cos(b.aim) * 950, vy: Math.sin(b.aim) * 950, t: 0.22 }; break;
+    case 'dash': b.ammo = 3; b.atkCD = 0; if (b === player) floatText(b.x, b.y - 60, 'NACHGELADEN!', '#ffd23f'); break;
+    case 'brutus': heal(b, b.maxHp * 0.3); break;
+    case 'luna': heal(b, 1200); G.pets.filter(p => p.owner === b).forEach(p => heal(p, 2000)); break;
+    case 'boom': areaDamage(b, b.x, b.y, 110, 700 * b.dmgMult, false); boom(b.x, b.y, 110); break;
+    case 'frost':
+      areaDamage(b, b.x, b.y, 220, 300 * b.dmgMult, false, { slow: 2.5 });
+      G.booms.push({ x: b.x, y: b.y, r: 220, t: 0, life: 0.5, color: '#9ff3ff' });
+      break;
+  }
+  for (let i = 0; i < 10; i++) particle(b.x, b.y, '#5dff6a', 220, .5, 6);
+  return true;
+}
+
 function areaDamage(src, x, y, radius, dmg, isSuper, opts = {}) {
   for (const u of units()) {
     if (u.team === src.team || (u.dead)) continue;
@@ -647,7 +673,8 @@ function updateBrawler(b, dt) {
     return;
   }
   const px = b.x, py = b.y;
-  b.atkCD -= dt; b.revealT -= dt; b.flash -= dt; b.slow -= dt;
+  b.atkCD -= dt; b.revealT -= dt; b.flash -= dt; b.slow -= dt; b.gadCD -= dt;
+  if (b.emote && (b.emote.t -= dt) <= 0) b.emote = null;
   if (b.ammo < 3 && !b.burst) b.ammo = Math.min(3, b.ammo + dt / b.d.reload);
   // regen
   if (G.t - b.lastHurt > 3 && G.t - b.lastAttack > 3 && b.hp < b.maxHp) b.hp = Math.min(b.maxHp, b.hp + b.maxHp * 0.13 * dt);
@@ -893,7 +920,7 @@ function randomSafePoint() {
 
 function botThink(b, dt) {
   if (!b.alive) return;
-  b.thinkT -= dt; b.fireT -= dt; b.strafeT -= dt;
+  b.thinkT -= dt; b.fireT -= dt; b.strafeT -= dt; b.react -= dt;
   b.stuckT += dt;
   if (b.stuckT > 1.2) {
     if (Math.hypot(b.x - b.lastPos.x, b.y - b.lastPos.y) < 25 && (b.mx || b.my)) { b.side *= -1; b.wander = randomSafePoint(); }
@@ -901,13 +928,17 @@ function botThink(b, dt) {
   }
   if (b.thinkT <= 0) {
     b.thinkT = rand(0.12, 0.25);
-    let best = null, bd = 950;
+    // calm start in Showdown: bots farm boxes first unless someone comes close or hits them
+    const calm = G.mode === 'sd' && G.t < 25 && G.t - b.lastHurt > 3;
+    let best = null, bd = calm ? 280 : 500 + 300 * b.skill;
     for (const u of units()) {
       if (u.team === b.team || u.dead || !canSee(b.team, u)) continue;
       const d = dist(u, b) * (u.isPet ? 1.3 : 1);
       if (d < bd) { bd = d; best = u; }
     }
     b.target = best;
+    if (best && best !== b.prevTarget) b.react = rand(0.5, 1.0) / (0.4 + b.skill); // time to notice a new enemy
+    b.prevTarget = best;
     b.boxTarget = null;
     b.goal = null;
     const range = b.d.range;
@@ -960,6 +991,12 @@ function botThink(b, dt) {
   }
   if (b.goal) steer(b, b.goal.x, b.goal.y); else { b.mx = 0; b.my = 0; }
 
+  // Gadget (bots use it now and then, when it makes sense)
+  if (b.gadgets > 0 && b.gadCD <= 0 && Math.random() < 0.015) {
+    const hp = b.hp / b.maxHp, tg = b.target, near = tg && dist(tg, b) < 170;
+    if (((b.type === 'brutus' || b.type === 'luna') && hp < 0.4) || ((b.type === 'boom' || b.type === 'frost') && near) ||
+        (b.type === 'dash' && b.ammo < 1 && tg) || (b.type === 'kira' && near)) tryGadget(b);
+  }
   // Shooting
   const t = b.target;
   if (t && !t.dead && (t.alive || t.isPet)) {
@@ -968,13 +1005,14 @@ function botThink(b, dt) {
     const los = lobber || hasLOS(b, t);
     if (los) {
       const travel = lobber ? 0.6 : d / 1000;
-      const lead = rand(0.3, 0.9) * b.skill;
+      const lead = rand(0, 0.6) * b.skill;
       const ax = t.x + (t.vx || 0) * travel * lead, ay = t.y + (t.vy || 0) * travel * lead;
-      const ang = Math.atan2(ay - b.y, ax - b.x) + rand(-0.14, 0.14) / b.skill;
+      const ang = Math.atan2(ay - b.y, ax - b.x) + rand(-1, 1) * (0.06 + 0.32 * (1 - b.skill));
       const ad = Math.hypot(ax - b.x, ay - b.y);
-      if (b.superCharge >= 1 && d < b.d.superRange * 0.9 && Math.random() < 0.08) trySuper(b, ang, ad);
-      else if (d < b.d.range * 0.95 && b.fireT <= 0 && b.ammo >= 1) {
-        if (tryAttack(b, ang, ad)) b.fireT = rand(0.35, 0.9) / b.skill;
+      if (b.react > 0) { /* still reacting */ }
+      else if (b.superCharge >= 1 && d < b.d.superRange * 0.85 && Math.random() < 0.02 + 0.03 * b.skill) trySuper(b, ang, ad);
+      else if (d < b.d.range * 0.85 && b.fireT <= 0 && b.ammo >= 1) {
+        if (tryAttack(b, ang, ad)) b.fireT = rand(0.7, 1.4) / (0.4 + b.skill);
       }
       b.aim = ang;
     }
@@ -1010,6 +1048,8 @@ function btnPos() {
   return {
     atk: { x: VW - 115 * s, y: VH - 125 * s, r: 62 * s },
     sup: { x: VW - 240 * s, y: VH - 80 * s, r: 46 * s },
+    gad: { x: VW - 225 * s, y: VH - 185 * s, r: 30 * s },
+    emo: { x: VW - 42 * s, y: VH * 0.38, r: 26 * s },
   };
 }
 addEventListener('keydown', e => {
@@ -1017,6 +1057,8 @@ addEventListener('keydown', e => {
   if (!G || G.over || G.paused || !player) return;
   if (e.code === 'Space' || e.code === 'KeyE') { const a = mouseAim(); trySuper(player, a.ang, a.d); e.preventDefault(); }
   if (e.code === 'KeyQ') { const a = autoAim(player, player.d.range); tryAttack(player, a.ang, a.d); }
+  if (e.code === 'KeyF') tryGadget(player);
+  if (e.code === 'KeyT') player.emote = { e: pick(EMOTES), t: 2 };
 });
 addEventListener('keyup', e => { keys[e.code] = false; });
 cv.addEventListener('contextmenu', e => e.preventDefault());
@@ -1027,7 +1069,9 @@ cv.addEventListener('mousedown', e => {
   if (!G || G.over || G.paused || !player) return;
   const bp = btnPos();
   const a = mouseAim();
-  if (e.button === 2 || Math.hypot(mp.x - bp.sup.x, mp.y - bp.sup.y) < bp.sup.r) trySuper(player, a.ang, a.d);
+  if (Math.hypot(mp.x - bp.gad.x, mp.y - bp.gad.y) < bp.gad.r && player.gadgets > 0) tryGadget(player);
+  else if (Math.hypot(mp.x - bp.emo.x, mp.y - bp.emo.y) < bp.emo.r) player.emote = { e: pick(EMOTES), t: 2 };
+  else if (e.button === 2 || Math.hypot(mp.x - bp.sup.x, mp.y - bp.sup.y) < bp.sup.r) trySuper(player, a.ang, a.d);
   else if (e.button === 0) { mouse.down = true; tryAttack(player, a.ang, a.d); }
 });
 addEventListener('mouseup', e => { if (e.button === 0) mouse.down = false; });
@@ -1061,6 +1105,8 @@ cv.addEventListener('touchstart', e => {
   const bp = btnPos();
   for (const t of e.changedTouches) {
     const { x, y } = toApp(t.clientX, t.clientY);
+    if (Math.hypot(x - bp.gad.x, y - bp.gad.y) < bp.gad.r * 1.3 && player.gadgets > 0) { tryGadget(player); continue; }
+    if (Math.hypot(x - bp.emo.x, y - bp.emo.y) < bp.emo.r * 1.3) { player.emote = { e: pick(EMOTES), t: 2 }; continue; }
     if (!sticks.sup && Math.hypot(x - bp.sup.x, y - bp.sup.y) < bp.sup.r * 1.3) sticks.sup = { id: t.identifier, ox: bp.sup.x, oy: bp.sup.y, x, y, max: bp.sup.r * 1.4 };
     else if (x > VW * 0.5 && !sticks.atk) sticks.atk = { id: t.identifier, ox: bp.atk.x, oy: bp.atk.y, sx: x, sy: y, x: bp.atk.x, y: bp.atk.y, max: bp.atk.r * 1.2, moved: false };
     else if (x <= VW * 0.5 && !sticks.move) sticks.move = { id: t.identifier, ox: x, oy: y, x, y, max: 60 };
@@ -1179,15 +1225,19 @@ function drawBrawlerFigure(c, type, x, y, ang, scale, time, opts = {}) {
   const d = BR[type];
   c.save(); c.translate(x, y); c.scale(scale, scale);
   if (opts.alpha != null) c.globalAlpha = opts.alpha;
-  const bob = opts.walk ? Math.abs(Math.sin(time * 14)) * 4 : Math.sin(time * 3) * 1.2;
+  const bob = opts.walk ? Math.abs(Math.sin(time * 14)) * 3 : Math.sin(time * 3) * 1.2;
   const big = type === 'brutus' ? 1.12 : 1;
   // shadow
-  if (!opts.noShadow) { c.fillStyle = 'rgba(0,0,0,.28)'; c.beginPath(); c.ellipse(0, 20, 26 * big, 10, 0, 0, TAU); c.fill(); }
+  if (!opts.noShadow) { c.fillStyle = 'rgba(0,0,0,.28)'; c.beginPath(); c.ellipse(0, 24, 24 * big, 9, 0, 0, TAU); c.fill(); }
+  // legs (walk cycle)
+  const step = opts.walk ? Math.sin(time * 14) * 5 : 0;
+  c.lineWidth = 3; c.strokeStyle = '#111'; c.fillStyle = '#2d2438';
+  for (const s of [-1, 1]) { roundRect(c, s * 8 - 5, 12 + s * step * 0.6 - bob * 0.3, 10, 13, 4); c.fill(); c.stroke(); }
   c.translate(0, -bob);
   const ca = Math.cos(ang), sa = Math.sin(ang);
   const behind = sa < -0.2; // weapon behind body when aiming up
   const weapon = () => {
-    c.save(); c.rotate(ang); c.lineWidth = 3; c.strokeStyle = '#111';
+    c.save(); c.translate(0, 4); c.rotate(ang); c.scale(0.85, 0.85); c.lineWidth = 3; c.strokeStyle = '#111';
     switch (type) {
       case 'kira':
         c.fillStyle = '#5a3a28'; roundRect(c, 6, -2, 18, 10, 3); c.fill(); c.stroke();
@@ -1219,6 +1269,14 @@ function drawBrawlerFigure(c, type, x, y, ang, scale, time, opts = {}) {
     c.restore();
   };
   if (behind) weapon();
+  // torso + arms
+  c.lineWidth = 3; c.strokeStyle = '#111';
+  c.fillStyle = d.dark; roundRect(c, -15 * big, -4, 30 * big, 22, 9); c.fill(); c.stroke();
+  c.fillStyle = 'rgba(255,255,255,.18)'; roundRect(c, -11 * big, -1, 22 * big, 6, 3); c.fill();
+  c.fillStyle = d.color;
+  for (const s of [-1, 1]) { c.beginPath(); c.arc(s * 17 * big + ca * 4, 8 + sa * 3, 6, 0, TAU); c.fill(); c.stroke(); }
+  // head (big, chibi style)
+  c.save(); c.translate(0, -17); c.scale(0.86, 0.86);
   // back accessories
   c.lineWidth = 3; c.strokeStyle = '#111';
   if (type === 'kira') { c.fillStyle = d.dark; c.beginPath(); c.arc(-ca * 20, -sa * 12 - 8, 11, 0, TAU); c.fill(); c.stroke(); }
@@ -1261,8 +1319,10 @@ function drawBrawlerFigure(c, type, x, y, ang, scale, time, opts = {}) {
     c.fillStyle = '#bff6ff';
     c.beginPath(); for (let i = 0; i < 5; i++) { const a = Math.PI + i / 4 * Math.PI; c.lineTo(Math.cos(a) * 18, -18 + Math.sin(a) * 6 - (i % 2 ? 0 : 8)); } c.closePath(); c.fill(); c.stroke();
   }
-  if (!behind) weapon();
   if (opts.flash > 0) { c.globalAlpha = 0.6; c.fillStyle = '#fff'; c.beginPath(); c.arc(0, 0, R + 1, 0, TAU); c.fill(); }
+  c.restore();
+  if (!behind) weapon();
+  if (opts.flash > 0) { c.globalAlpha = 0.5; c.fillStyle = '#fff'; roundRect(c, -15 * big, -4, 30 * big, 22, 9); c.fill(); }
   c.restore();
 }
 
@@ -1471,10 +1531,10 @@ function drawUnit(c, b, time) {
   if (b.leap) { const k = b.leap.t / b.leap.dur; y -= Math.sin(k * Math.PI) * 90; scale = 1 + Math.sin(k * Math.PI) * 0.3; }
   c.globalAlpha = alpha;
   c.strokeStyle = ringCol; c.lineWidth = 4;
-  c.beginPath(); c.ellipse(b.x, b.y + 18, 30, 12, 0, 0, TAU); c.stroke();
+  c.beginPath(); c.ellipse(b.x, b.y + 23, 28, 11, 0, 0, TAU); c.stroke();
   if (b.superCharge >= 1) {
     c.strokeStyle = `rgba(255,220,60,${0.5 + Math.sin(time * 8) * 0.4})`; c.lineWidth = 3;
-    c.beginPath(); c.ellipse(b.x, b.y + 18, 36, 15, 0, 0, TAU); c.stroke();
+    c.beginPath(); c.ellipse(b.x, b.y + 23, 34, 14, 0, 0, TAU); c.stroke();
   }
   drawBrawlerFigure(c, b.type, x, y, b.aim, scale, time, { walk: b.walkT > 0, flash: b.flash, alpha });
   if (b.slow > 0) { c.fillStyle = 'rgba(160,240,255,.35)'; c.beginPath(); c.arc(x, y, 28, 0, TAU); c.fill(); }
@@ -1495,7 +1555,7 @@ function drawBar(c, x, y, w, f, col, label) {
 }
 function drawOverhead(c, b) {
   if (!canSee(player.team, b)) return;
-  let y = b.y - 52;
+  let y = b.y - 60;
   if (b.leap) y -= Math.sin(b.leap.t / b.leap.dur * Math.PI) * 90;
   const col = b === player ? '#3cff5a' : b.team === player.team ? '#3ba3ff' : '#ff3b3b';
   drawBar(c, b.x, y, 74, b.hp / b.maxHp, col, String(Math.ceil(b.hp)));
@@ -1512,6 +1572,13 @@ function drawOverhead(c, b) {
   }
   if (G.mode === 'sd' && b.cubes > 0) { drawCube(c, b.x - 50, y - 1, 0.75); txt(c, String(b.cubes), b.x - 50, y + 12, 14, '#9dff9d', 'center', 3); }
   if (G.mode === 'gg' && b.gems > 0) { drawGem(c, b.x, y - 56, 1); txt(c, String(b.gems), b.x + 16, y - 56, 18, '#f1b6ff', 'left', 4); }
+  if (b.emote) {
+    const ey = y - (G.mode === 'gg' && b.gems > 0 ? 95 : 70) - Math.min(0, (b.emote.t - 1.8) * 60);
+    c.fillStyle = '#fff'; c.strokeStyle = '#000'; c.lineWidth = 3;
+    roundRect(c, b.x - 24, ey - 22, 48, 44, 12); c.fill(); c.stroke();
+    c.beginPath(); c.moveTo(b.x - 6, ey + 21); c.lineTo(b.x, ey + 30); c.lineTo(b.x + 6, ey + 21); c.fill();
+    txt(c, b.emote.e, b.x, ey + 1, 28, '#000', 'center', 0);
+  }
 }
 
 function drawAim(c) {
@@ -1619,6 +1686,18 @@ function drawHUD(c) {
     c.beginPath(); c.arc(bp.atk.x, bp.atk.y, bp.atk.r, 0, TAU); c.fill(); c.stroke();
     c.fillStyle = '#ff6a3d'; c.beginPath(); c.arc(a ? a.x : bp.atk.x, a ? a.y : bp.atk.y, bp.atk.r * 0.45, 0, TAU); c.fill(); c.stroke();
   }
+  // gadget button (green, from power level 7) and emote button
+  if (player.level >= GADGET_LEVEL) {
+    const g = bp.gad, has = player.gadgets > 0 && player.gadCD <= 0;
+    c.lineWidth = 3; c.strokeStyle = '#000';
+    c.fillStyle = has ? '#3ddc4f' : 'rgba(60,60,60,.7)'; c.beginPath(); c.arc(g.x, g.y, g.r, 0, TAU); c.fill(); c.stroke();
+    txt(c, '⚡', g.x, g.y, g.r * 0.9, '#fff', 'center', 0);
+    for (let i = 0; i < 3; i++) { c.fillStyle = i < player.gadgets ? '#3ddc4f' : '#333'; c.beginPath(); c.arc(g.x - 12 + i * 12, g.y + g.r + 8, 4, 0, TAU); c.fill(); c.stroke(); }
+    if (!isTouch) txt(c, 'F', g.x + g.r, g.y - g.r, 14, '#fff', 'center', 3);
+  }
+  c.lineWidth = 3; c.strokeStyle = '#000'; c.fillStyle = 'rgba(0,0,0,.45)';
+  c.beginPath(); c.arc(bp.emo.x, bp.emo.y, bp.emo.r, 0, TAU); c.fill(); c.stroke();
+  txt(c, '😀', bp.emo.x, bp.emo.y + 1, bp.emo.r, '#fff', 'center', 0);
   // super button (always visible; clickable with mouse too)
   const s = sticks.sup, ready = player.superCharge >= 1;
   c.lineWidth = 4; c.strokeStyle = '#000';
@@ -1687,7 +1766,7 @@ function drawIcon(canvas, k, scale) {
   c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, canvas.width, canvas.height);
   const s = canvas.width / 120;
   c.scale(s, s);
-  drawBrawlerFigure(c, k, 60, 66, Math.PI / 2 - 0.5, scale || 1.6, 0, { noShadow: true });
+  drawBrawlerFigure(c, k, 60, 70, Math.PI / 2 - 0.5, scale || 1.45, 0, { noShadow: true });
 }
 const canUpgrade = k => isUnlocked(k) && save.levels[k] < MAX_LEVEL && save.coins >= UPGRADE_COST[save.levels[k] - 1];
 
@@ -1712,7 +1791,7 @@ function refreshLobby() {
   $('upBadge').hidden = !BRAWLER_KEYS.some(canUpgrade);
   const m = MODES[save.mode];
   $('modeName').textContent = m.name; $('modeIcon').textContent = m.icon; $('modeIcon').style.background = m.col;
-  drawIcon($('avatar'), save.sel, 1.9);
+  drawIcon($('avatar'), save.sel, 1.6);
 }
 
 function buildBrawlerGrid() {
@@ -1728,7 +1807,7 @@ function buildBrawlerGrid() {
     card.innerHTML = `<div class="tr txt">${TROPHY_SVG}${save.trophies[k]}</div><span class="lvl lv txt">${lvl}</span>
       <canvas width="200" height="200"></canvas>
       <div class="nm txt">${d.name.toUpperCase()}</div><div class="role">${d.role}</div>
-      <div class="st">❤️ ${Math.round(d.hp * levelMult(lvl))} LP<br>🔫 ${d.atk}<br>⭐ ${d.sup}</div>${bottom}`;
+      <div class="st">❤️ ${Math.round(d.hp * levelMult(lvl))} LP<br>🔫 ${d.atk}<br>⭐ ${d.sup}<br>⚡ ${lvl >= GADGET_LEVEL ? d.gad : 'Gadget ab Level ' + GADGET_LEVEL}</div>${bottom}`;
     drawIcon(card.querySelector('canvas'), k);
     card.onclick = () => {
       if (!open) return;
@@ -1839,7 +1918,7 @@ function drawPreview(t) {
   pctx.clearRect(0, 0, 560, 560);
   pctx.fillStyle = 'rgba(0,0,0,.25)'; pctx.beginPath(); pctx.ellipse(280, 440, 160, 38, 0, 0, TAU); pctx.fill();
   pctx.strokeStyle = 'rgba(255,255,255,.25)'; pctx.lineWidth = 8; pctx.beginPath(); pctx.ellipse(280, 440, 160, 38, 0, 0, TAU); pctx.stroke();
-  drawBrawlerFigure(pctx, save.sel, 280, 310, Math.PI / 2 + Math.sin(t * 0.8) * 0.9, 5.6, t, { noShadow: true });
+  drawBrawlerFigure(pctx, save.sel, 280, 290, Math.PI / 2 + Math.sin(t * 0.8) * 0.9, 5.6, t, { noShadow: true });
 }
 
 // =====================================================================

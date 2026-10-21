@@ -33,13 +33,13 @@ https://raw.githack.com/realJonified/Brawl-Stars/ccr-3aefd39f-tq7u8o/index.html
 | Boom | Werfer | Dynamit über Wände | Riesenfass |
 | Frost | Scharfschützin | Eiskristall, mehr Schaden auf Distanz | Eissturm, verlangsamt |
 
-Querformat (auf dem Handy einfach quer halten), Trophäenstraße mit freischaltbaren Brawlern, Münzen und Power-Level-Upgrades (1–11), Spielersuche und VS-Bildschirm. 3 Munitionsbalken, Super lädt sich durch Treffer auf, Leben regeneriert sich nach 3 Sekunden ohne Kampf, Büsche verstecken dich, Trophäen pro Brawler (werden im Browser gespeichert).
+Querformat (auf dem Handy einfach quer halten), Trophäenstraße mit freischaltbaren Brawlern, Münzen und Power-Level-Upgrades (1–11), Spielersuche und VS-Bildschirm, Gadgets ab Power-Level 7, Emotes, leichte Bots bei wenigen Trophäen (werden mit mehr Trophäen stärker). 3 Munitionsbalken, Super lädt sich durch Treffer auf, Leben regeneriert sich nach 3 Sekunden ohne Kampf, Büsche verstecken dich, Trophäen pro Brawler (werden im Browser gespeichert).
 
 ## Steuerung
 
-**PC:** `WASD` bewegen · Maus zielen · Linksklick angreifen · Rechtsklick / `Leertaste` = Super · `Q` = Auto-Aim
+**PC:** `WASD` bewegen · Maus zielen · Linksklick angreifen · Rechtsklick / `Leertaste` = Super · `F` = Gadget · `T` = Emote · `Q` = Auto-Aim
 
-**Handy:** linke Bildschirmhälfte = Bewegungs-Joystick · rechts antippen = Auto-Aim-Angriff, ziehen = zielen · lila Stern-Knopf = Super
+**Handy:** linke Bildschirmhälfte = Bewegungs-Joystick · rechts antippen = Auto-Aim-Angriff, ziehen = zielen · lila Stern-Knopf = Super · grüner Blitz = Gadget · 😀 = Emote
 
 ## Hinweis
 
