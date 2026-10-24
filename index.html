@@ -137,11 +137,11 @@
   .card .lv { position: absolute; top: .3rem; right: .35rem; }
   .card .up { font-size: .8rem; padding: .2rem .4rem; width: 100%; display: flex; align-items: center; justify-content: center; gap: .25rem; }
   .card .lockTxt { font-size: .9rem; padding: .25rem 0; }
-  .modes { display: flex; gap: 1rem; justify-content: center; align-items: stretch; flex-wrap: wrap; }
-  .modeCard { width: 18rem; flex-direction: row; text-align: left; padding: .8rem; gap: .8rem; align-items: center; }
-  .modeCard .modeIcon { width: 4rem; height: 4rem; font-size: 2.2rem; }
-  .modeCard .nm { font-size: 1.5rem; }
-  .modeCard p { font-family: Arial, sans-serif; font-weight: bold; font-size: .75rem; opacity: .9; }
+  .modes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .6rem; max-width: 52rem; width: 100%; margin: 0 auto; }
+  .modeCard { flex-direction: row; text-align: left; padding: .6rem; gap: .6rem; align-items: center; }
+  .modeCard .modeIcon { width: 3rem; height: 3rem; font-size: 1.6rem; }
+  .modeCard .nm { font-size: 1.15rem; }
+  .modeCard p { font-family: Arial, sans-serif; font-weight: bold; font-size: .66rem; opacity: .9; }
 
   /* ---------- Matchmaking / VS ---------- */
   #match { z-index: 12; background: radial-gradient(ellipse at center, #2a55e0, #0d1b4c); text-align: center; }
@@ -167,6 +167,26 @@
   .rewards > div { font-size: 2rem; display: inline-flex; align-items: center; gap: .5rem; background: rgba(0,0,0,.4); border: .18rem solid #000; border-radius: .8rem; padding: .3rem 1.1rem; }
   #resExtra { font-size: .95rem; color: #9dff9d; display: flex; flex-direction: column; gap: .2rem; margin-bottom: .6rem; }
   .xpTag { background: #fff; color: #000; border-radius: .3rem; padding: 0 .3rem; font-size: 1.2rem; text-shadow: none; }
+  .pslot { position: absolute; top: 50%; width: 6.5rem; display: flex; flex-direction: column; align-items: center; z-index: 2; cursor: pointer; }
+  .pslot.add { height: 4rem; width: 4rem; justify-content: center; font-size: 2.4rem; background: rgba(255,255,255,.85); color: #8a93b0; border-radius: .5rem; transform: translateY(-50%) skewX(-6deg); }
+  .pslot.mate { transform: translateY(-40%); background: none; border: none; color: #fff; font-family: inherit; }
+  .pslot.mate canvas { width: 6.5rem; height: 6.5rem; }
+  .mateName { font-size: .9rem; max-width: 7rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #slotL { left: calc(50% - 15rem); } #slotR { left: calc(50% + 8.5rem); }
+  .teamBody { display: flex; flex-direction: column; gap: .7rem; align-items: center; max-width: 34rem; margin: 0 auto; width: 100%; }
+  .teamBody .btn { font-size: 1.2rem; }
+  .joinRow { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; justify-content: center; }
+  .joinRow label { font-size: 1.1rem; }
+  #teamCode { font-family: inherit; font-size: 1.3rem; padding: .3rem .6rem; border-radius: .5rem; border: .2rem solid #000; width: 9rem; text-align: center; text-transform: lowercase; user-select: text; -webkit-user-select: text; color: #000; background: #fff; }
+  .codeBox { font-size: 1.4rem; display: flex; gap: .6rem; align-items: center; background: rgba(0,0,0,.4); border: .18rem solid #000; border-radius: .7rem; padding: .3rem .8rem; }
+  .codeBox b { color: #ffe45c; font-weight: normal; letter-spacing: .15rem; user-select: text; -webkit-user-select: text; }
+  .codeBox .btn { font-size: .85rem; padding: .2rem .6rem; }
+  .members { list-style: none; display: flex; flex-direction: column; gap: .3rem; font-size: 1.1rem; }
+  .members small { font-family: Arial, sans-serif; font-weight: bold; font-size: .75rem; opacity: .8; }
+  .teamNote { font-family: Arial, sans-serif; font-weight: bold; font-size: .8rem; opacity: .9; text-align: center; max-width: 30rem; line-height: 1.4; }
+  .teamErr { font-family: Arial, sans-serif; font-weight: bold; font-size: .85rem; color: #ff9d9d; text-align: center; margin-top: .5rem; }
+  .toast { position: absolute; top: 4.5rem; left: 50%; transform: translateX(-50%); z-index: 30; background: rgba(0,0,0,.8); border: .18rem solid #000; border-radius: .6rem; padding: .4rem .9rem; font-size: 1rem; max-width: 90%; text-align: center; }
+  #playBtn.wait { background: linear-gradient(#9aa3b5, #5d6577); font-size: 1.4rem; }
   #exitBtn { position: absolute; top: .5rem; left: .5rem; width: 2.5rem; height: 2.5rem; padding: 0; font-size: 1.1rem; z-index: 5; display: none; }
 </style>
 </head>
@@ -199,6 +219,8 @@
     <button id="newsBtn" class="tile navBtn txt"><span class="ic">📰</span>NEWS<span id="newsTag" class="countBadge" hidden>!</span></button>
     <button id="profileBtn2" class="tile navBtn txt"><span class="ic">🙂</span>PROFIL</button>
   </div>
+  <button id="slotL" class="pslot add tile" aria-label="Mit Freunden spielen"><span>+</span></button>
+  <button id="slotR" class="pslot add tile" aria-label="Mit Freunden spielen"><span>+</span></button>
   <div id="previewWrap">
     <div class="statRow"><div id="brawlerTrophies" class="txt"></div><span class="lvl txt" id="brawlerLvl">1</span></div>
     <canvas id="preview" width="520" height="520"></canvas>
@@ -236,6 +258,7 @@
   <button class="btn btn-red txt closeX" data-close="newsSel">✕</button>
   <h1 class="txt">NEWS</h1>
   <div class="news">
+    <p><b class="txt">MULTIPLAYER-UPDATE!</b> Spiel mit bis zu 2 Freunden: Tipp auf „+“ neben deinem Brawler, erstell ein Team und schick den Code. Neue Modi: Duo-Showdown, Trio-Showdown, Brawl Ball und Knockout.</p>
     <p><b class="txt">NEUE LOBBY!</b> Shop, Quests, Tägliche Siege, Spieler-Level und dein eigener Name.</p>
     <p><b class="txt">MAP-ROTATION</b> Jede Stunde gibt es neue Karten für Showdown und Juwelenjagd.</p>
     <p><b class="txt">NEUER LOOK</b> Holzboden, Kisten, hohes Gras und Power-Kisten im Kampf.</p>
@@ -267,11 +290,17 @@
 <div id="modeSel" class="screen overlay">
   <button class="btn btn-red txt closeX" data-close="modeSel">✕</button>
   <h1 class="txt">EVENTS</h1>
-  <div class="modes">
-    <div class="card modeCard" data-mode="sd"><div class="modeIcon" style="background:#3fbf3f">💀</div><div><div class="nm txt">SHOWDOWN</div><p class="mapLine" id="mapSd"></p><p>10 Brawler, nur einer überlebt! Zerstöre Kisten für Power-Würfel und hüte dich vor dem Giftgas.</p></div></div>
-    <div class="card modeCard" data-mode="gg"><div class="modeIcon" style="background:#b04dff">💎</div><div><div class="nm txt">JUWELENJAGD</div><p class="mapLine" id="mapGg"></p><p>3 gegen 3. Sammle Juwelen aus der Mine. Hält dein Team 10 Juwelen bis der Countdown abläuft, gewinnt ihr!</p></div></div>
-  </div>
+  <div class="modes" id="modeList"></div>
 </div>
+
+<!-- Team -->
+<div id="teamSel" class="screen overlay">
+  <button class="btn btn-red txt closeX" data-close="teamSel">✕</button>
+  <h1 class="txt">MIT FREUNDEN SPIELEN</h1>
+  <div id="teamBody" class="teamBody"></div>
+  <p id="teamMsg" class="teamErr"></p>
+</div>
+<div id="toast" class="toast txt" hidden></div>
 
 <!-- Matchmaking -->
 <div id="match" class="screen">
@@ -354,7 +383,7 @@ const levelMult = lvl => 1 + 0.06 * (lvl - 1);
 const today = () => new Date().toDateString();
 const xpNeed = l => 100 + 50 * (l - 1);
 const DAILY_REWARDS = [{ coins: 20 }, { coins: 20 }, { gems: 3 }, { coins: 30 }, { coins: 40 }, { gems: 5 }];
-const NEWS_VERSION = 1;
+const NEWS_VERSION = 2;
 const QUEST_TYPES = {
   kills:   { txt: n => `Besiege ${n} Gegner`, goals: [3, 5, 8] },
   matches: { txt: n => `Spiele ${n} Matches`, goals: [2, 3, 5] },
@@ -416,23 +445,37 @@ const tileAtPx = (x, y) => tileAt(Math.floor(x / T), Math.floor(y / T));
 const blocksMove = t => t === 1 || t === 3 || t === 4;
 const blocksShot = t => t === 1 || t === 4;
 
+// ---------- Modes ----------
+const MODE_DEF = {
+  sd:   { name: 'SOLO-SHOWDOWN', icon: '💀', col: '#3fbf3f', kind: 'sd', teams: 10, size: 1, desc: '10 Brawler, nur einer überlebt! Power-Kisten knacken, Würfel sammeln, Giftgas meiden.' },
+  duo:  { name: 'DUO-SHOWDOWN', icon: '👥', col: '#3fbf3f', kind: 'sd', teams: 5, size: 2, desc: '5 Teams zu zweit. Fällt dein Partner, kommt er zurück, solange du lebst.' },
+  trio: { name: 'TRIO-SHOWDOWN', icon: '🔱', col: '#3fbf3f', kind: 'sd', teams: 4, size: 3, desc: '4 Teams zu dritt kämpfen ums Überleben. Spiel mit 2 Freunden!' },
+  gg:   { name: 'JUWELENJAGD', icon: '💎', col: '#b04dff', kind: 'gg', teams: 2, size: 3, desc: '3 gegen 3. Haltet 10 Juwelen, bis der Countdown abläuft.' },
+  ball: { name: 'BRAWL BALL', icon: '⚽', col: '#4f8cff', kind: 'ball', teams: 2, size: 3, desc: '3 gegen 3. Schieß den Ball ins gegnerische Tor. 2 Tore gewinnen!' },
+  ko:   { name: 'KNOCKOUT', icon: '🎯', col: '#ff8a2a', kind: 'ko', teams: 2, size: 3, desc: '3 gegen 3 ohne Wiederbeleben. Wer zuerst 2 Runden gewinnt, siegt.' },
+};
+const MODE_KEYS = Object.keys(MODE_DEF);
+const kindOf = m => MODE_DEF[m].kind;
+
 function genMap(mode) {
-  if (mode === 'sd') { W = 40; H = 40; } else { W = 27; H = 41; }
+  const kind = kindOf(mode), def = MODE_DEF[mode];
+  const sizes = { sd: [40, 40], gg: [27, 41], ko: [27, 33], ball: [21, 33] };
+  [W, H] = sizes[kind];
   tiles = new Uint8Array(W * H);
   tileHp = new Float32Array(W * H);
   deco = new Uint8Array(W * H);
-  const mirror = (x, y) => mode === 'sd'
+  const mirror = (x, y) => kind === 'sd'
     ? [[x, y], [W - 1 - x, y], [x, H - 1 - y], [W - 1 - x, H - 1 - y]]
     : [[x, y], [W - 1 - x, H - 1 - y]];
   const set = (x, y, v) => { for (const [a, b] of mirror(x, y)) if (a >= 0 && b >= 0 && a < W && b < H) tiles[b * W + a] = v; };
-  const rw = mode === 'sd' ? Math.floor(W / 2) : W;
+  const rw = kind === 'sd' ? Math.floor(W / 2) : W;
   const rh = Math.floor(H / 2);
 
   // Wall segments
-  const wallCount = mode === 'sd' ? 13 : 16;
+  const wallCount = { sd: 13, gg: 16, ko: 13, ball: 9 }[kind];
   for (let i = 0; i < wallCount; i++) {
-    let x = randi(1, rw - 2), y = randi(2, rh - 1);
-    const len = randi(2, 5), horiz = RNG() < 0.5;
+    let x = randi(1, rw - 2), y = randi(kind === 'ball' ? 5 : 2, rh - 1);
+    const len = randi(2, kind === 'ball' ? 3 : 5), horiz = RNG() < 0.5;
     for (let j = 0; j < len; j++) {
       set(x, y, 1);
       if (RNG() < 0.2) { horiz ? y += pick([-1, 1]) : x += pick([-1, 1]); set(x, y, 1); }
@@ -440,7 +483,7 @@ function genMap(mode) {
     }
   }
   // Bushes (blobs)
-  const bushCount = mode === 'sd' ? 11 : 9;
+  const bushCount = { sd: 11, gg: 9, ko: 8, ball: 6 }[kind];
   for (let i = 0; i < bushCount; i++) {
     const cx = randi(1, rw - 1), cy = randi(1, rh - 1), r = rand(1, 2.4);
     for (let y = Math.floor(cy - r); y <= cy + r; y++)
@@ -448,13 +491,12 @@ function genMap(mode) {
         if (Math.hypot((x - cx) * 0.75, y - cy) <= r && x >= 0 && y >= 0 && x < rw && y < rh && tiles[y * W + x] === 0) set(x, y, 2);
   }
   // Water
-  const waterCount = mode === 'sd' ? 2 : 2;
-  for (let i = 0; i < waterCount; i++) {
+  for (let i = 0; i < 2; i++) {
     const x = randi(2, rw - 4), y = randi(3, rh - 3);
     for (let a = 0; a < randi(2, 3); a++) for (let b = 0; b < 2; b++) set(x + a, y + b, 3);
   }
-  // Power cube boxes (showdown)
-  if (mode === 'sd') {
+  // Power cube boxes (showdown modes)
+  if (kind === 'sd') {
     let placed = 0, tries = 0;
     while (placed < 4 && tries++ < 200) {
       const x = randi(2, rw - 1), y = randi(2, rh - 1);
@@ -473,23 +515,33 @@ function genMap(mode) {
   // Spawns
   const spawns = [];
   const Wpx = W * T, Hpx = H * T;
-  if (mode === 'sd') {
-    const off = rand(0, TAU);
-    for (let i = 0; i < 10; i++) {
-      const a = off + i / 10 * TAU, r = Math.min(Wpx, Hpx) * 0.39;
+  if (kind === 'sd') {
+    const off = rand(0, TAU), n = def.teams;
+    for (let i = 0; i < n; i++) {
+      const a = off + i / n * TAU, r = Math.min(Wpx, Hpx) * 0.39;
       spawns.push({ x: Wpx / 2 + Math.cos(a) * r, y: Hpx / 2 + Math.sin(a) * r });
     }
   } else {
-    for (let i = -1; i <= 1; i++) spawns.push({ x: Wpx / 2 + i * 150, y: Hpx - 2.5 * T, team: 0 });
-    for (let i = -1; i <= 1; i++) spawns.push({ x: Wpx / 2 - i * 150, y: 2.5 * T, team: 1 });
+    const edge = kind === 'ball' ? 4.5 * T : 2.5 * T;
+    for (let i = -1; i <= 1; i++) spawns.push({ x: Wpx / 2 + i * 150, y: Hpx - edge, team: 0 });
+    for (let i = -1; i <= 1; i++) spawns.push({ x: Wpx / 2 - i * 150, y: edge, team: 1 });
   }
   const clearAround = (px, py, r) => {
     const cx = Math.floor(px / T), cy = Math.floor(py / T);
     for (let y = cy - r; y <= cy + r; y++) for (let x = cx - r; x <= cx + r; x++)
       if (x >= 0 && y >= 0 && x < W && y < H) tiles[y * W + x] = 0;
   };
-  for (const s of spawns) clearAround(s.x, s.y, 1);
-  clearAround(Wpx / 2, Hpx / 2, mode === 'gg' ? 2 : 1);
+  for (const s of spawns) clearAround(s.x, s.y, kind === 'sd' && def.size > 1 ? 2 : 1);
+  clearAround(Wpx / 2, Hpx / 2, kind === 'sd' ? 1 : 2);
+  if (kind === 'ball') {
+    // goal pockets: the two outer rows are wall except the goal mouth in the middle
+    const cx = Math.floor(W / 2);
+    for (let x = 0; x < W; x++) for (const y of [0, 1]) {
+      const v = Math.abs(x - cx) <= 2 ? 0 : 1;
+      tiles[y * W + x] = v; tiles[(H - 1 - y) * W + (W - 1 - x)] = v;
+    }
+    for (let y = 2; y <= 6; y++) for (let x = cx - 3; x <= cx + 3; x++) { tiles[y * W + x] = 0; tiles[(H - 1 - y) * W + (W - 1 - x)] = 0; }
+  }
   // Water must never seal anything off: drop water next to walls
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (tiles[y * W + x] === 3) {
     for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (tileAt(x + dx, y + dy) === 1 && x + dx >= 0 && x + dx < W && y + dy >= 0 && y + dy < H) tiles[(y + dy) * W + x + dx] = 0;
@@ -540,7 +592,7 @@ function breakTile(tx, ty) {
   if (tx <= 0 || ty <= 0 || tx >= W - 1 || ty >= H - 1) { if (tileAt(tx, ty) !== 4) return; }
   const i = ty * W + tx, t = tiles[i];
   if (t === 1 || t === 2) {
-    tiles[i] = 0;
+    tiles[i] = 0; tileChanged(i);
     for (let k = 0; k < 6; k++) particle(tx * T + T / 2, ty * T + T / 2, t === 1 ? '#b8692f' : '#3fa34d', 260, 0.5, 7);
   } else if (t === 4) hitBox(tx, ty, 99999);
 }
@@ -550,7 +602,7 @@ function hitBox(tx, ty, dmg) {
   tileHp[i] -= dmg;
   G.boxFlash[i] = 0.12;
   if (tileHp[i] <= 0) {
-    tiles[i] = 0;
+    tiles[i] = 0; tileChanged(i);
     for (let k = 0; k < 12; k++) particle(tx * T + T / 2, ty * T + T / 2, pick(['#a8692f', '#7a4a1f', '#5dff6a']), 300, 0.6, 8);
     G.pickups.push({ type: 'cube', x: tx * T + T / 2, y: ty * T + T / 2, t: 0 });
   }
@@ -572,7 +624,8 @@ class Brawler {
     this.maxHp = Math.round(this.d.hp * this.lvlMult); this.hp = this.maxHp;
     this.ammo = 3; this.superCharge = 0;
     this.botDmg = isPlayer ? 1 : 0.7 + 0.3 * G.botLevel; // easier bots: less damage at low trophies
-    this.aim = team === 0 && G.mode === 'gg' ? -Math.PI / 2 : Math.PI / 2;
+    this.aim = team === 0 && G.kind !== 'sd' ? -Math.PI / 2 : Math.PI / 2;
+    this.st = { kills: 0, damage: 0, cubes: 0, gems: 0, super: 0 };
     this.mx = 0; this.my = 0; this.vx = 0; this.vy = 0;
     this.alive = true; this.cubes = 0; this.dmgMult = this.lvlMult; this.gems = 0;
     this.lastHurt = -10; this.lastAttack = -10; this.revealT = 0; this.flash = 0;
@@ -591,7 +644,11 @@ class Brawler {
 // ---------- Map rotation: every mode gets a new map each hour ----------
 const MAP_NAMES = {
   sd: ['Giftschlucht', 'Lilawald', 'Kistenchaos', 'Mondsteg', 'Geistermühle', 'Grasmeer', 'Spukgasse', 'Würfelwiese'],
+  duo: ['Zwillingsbucht', 'Kistenkreuz', 'Doppeltal', 'Spukgasse', 'Grasmeer', 'Partnerpfad'],
+  trio: ['Dreierhain', 'Mondsteg', 'Würfelwiese', 'Geistermühle', 'Kleeblattfeld'],
   gg: ['Kristallmine', 'Juwelenhof', 'Felsenkreuz', 'Edelsteintal', 'Glitzergrube', 'Minenwirrwarr'],
+  ball: ['Sternstadion', 'Lila Liga', 'Kistenkick', 'Torwiese', 'Ballhalle'],
+  ko: ['Duellgrund', 'Felsarena', 'Letzte Bastion', 'Kreuzfeuer', 'Schattenschlucht'],
 };
 const THEMES = {
   night: { bg: '#1a0d2a', floorA: '#6b4a8e', floorB: '#654487', seam: 'rgba(35,15,60,.55)', grain: 'rgba(255,255,255,.05)', vine: '#3fd86a', vineDark: '#1f8a3e',
@@ -602,44 +659,53 @@ const THEMES = {
            bush: '#3a9e45', bushDark: '#1f6b2a', bushLight: '#6fd06e', water: '#2f9be0', waterLine: '#bfe6ff', border: '#2b1a0c' },
 };
 function mapInfo(mode) {
-  const slot = Math.floor(Date.now() / 3600000);
-  const names = MAP_NAMES[mode];
-  const idx = (slot + (mode === 'gg' ? 3 : 0)) % names.length;
-  return { name: names[idx], seed: slot * 31 + (mode === 'gg' ? 7 : 1), theme: idx % 3 === 2 ? 'desert' : 'night', endsIn: (slot + 1) * 3600000 - Date.now() };
+  const slot = Math.floor(Date.now() / 3600000), names = MAP_NAMES[mode], mi = MODE_KEYS.indexOf(mode);
+  const idx = (slot + mi * 3) % names.length;
+  return { name: names[idx], seed: slot * 31 + mi * 7 + 1, theme: idx % 3 === 2 ? 'desert' : 'night', endsIn: (slot + 1) * 3600000 - Date.now() };
 }
 
-function newGame(mode, type) {
-  G = {
-    mode, t: 0, brawlers: [], pets: [], proj: [], parts: [], texts: [], booms: [], pickups: [],
-    gasInset: 0, over: false, endT: 0, gemT: 2, countdown: null, cdTeam: -1, boxFlash: {}, shake: 0,
-    botLevel: clamp(0.25 + totalTrophies() / 600, 0.25, 0.8),
-    deadOrder: [], cam: { x: 0, y: 0 }, msg: null, feed: [], timeLeft: mode === 'gg' ? 150 : 0, paused: false,
-  };
-  const info = mapInfo(mode);
-  RNG = mulberry32(info.seed);
-  const spawns = genMap(mode);
-  RNG = Math.random;
-  G.theme = THEMES[info.theme]; G.mapName = info.name;
-  G.stats = { kills: 0, damage: 0, cubes: 0, gems: 0, super: 0 };
+// Host / single player: build the roster (local player + party on team 0, bots elsewhere) and start
+function newGame(mode, type, party = []) {
+  const def = MODE_DEF[mode], kind = def.kind, info = mapInfo(mode);
+  RNG = mulberry32(info.seed); const spawns = genMap(mode); RNG = Math.random;
   const names = BOT_NAMES.slice().sort(() => Math.random() - .5);
   const myLvl = save.levels[type];
   const botLvl = () => clamp(myLvl + randi(-1, 1), 1, MAX_LEVEL);
-  if (mode === 'sd') {
-    spawns.sort(() => Math.random() - .5);
-    for (let i = 0; i < 10; i++) {
-      const s = spawns[i];
-      const b = new Brawler(i === 0 ? type : pick(BRAWLER_KEYS), i, s.x, s.y, i === 0, i === 0 ? save.name : names[i], i === 0 ? myLvl : botLvl());
-      G.brawlers.push(b);
-    }
-  } else {
-    spawns.forEach((s, i) => {
-      const b = new Brawler(i === 1 ? type : pick(BRAWLER_KEYS), s.team, s.x, s.y, i === 1, i === 1 ? save.name : names[i], i === 1 ? myLvl : botLvl());
-      G.brawlers.push(b);
-    });
+  const humans = [{ peer: null, name: save.name, type, level: myLvl }, ...party];
+  const order = spawns.map((s, i) => i).sort(() => Math.random() - .5);
+  const roster = [];
+  for (let t = 0; t < def.teams; t++) for (let k = 0; k < def.size; k++) {
+    const h = t === 0 ? humans[k] : null;
+    let pos;
+    if (kind === 'sd') { const sp = spawns[order[t]], off = [[0, 0], [75, 0], [-75, 0]][k]; pos = findFree(sp.x + off[0], sp.y + off[1], 22); }
+    else pos = spawns.filter(p => p.team === t)[k];
+    roster.push({ type: h ? h.type : pick(BRAWLER_KEYS), team: t, name: h ? h.name : names[roster.length % names.length],
+                  lvl: h ? h.level : botLvl(), x: Math.round(pos.x), y: Math.round(pos.y), peer: h ? h.peer : null, human: !!h });
   }
-  player = G.brawlers.find(b => b.isPlayer);
+  setupGame(mode, info, roster, 0);
+}
+
+// Everyone (host, single player and team members) builds the same game from mode + map info + roster
+function setupGame(mode, info, roster, myIdx) {
+  const kind = kindOf(mode);
+  G = {
+    mode, kind, t: 0, brawlers: [], pets: [], proj: [], parts: [], texts: [], booms: [], pickups: [],
+    gasInset: 0, over: false, endT: 0, gemT: 2, countdown: null, cdTeam: -1, boxFlash: {}, shake: 0,
+    botLevel: clamp(0.25 + totalTrophies() / 600, 0.25, 0.8),
+    deadOrder: [], cam: { x: 0, y: 0 }, msg: null, feed: [], timeLeft: kind === 'gg' || kind === 'ball' ? 150 : 0, paused: false,
+    score: [0, 0], round: 1, roundT: 0, resetT: 0, ball: null, info, roster,
+  };
+  RNG = mulberry32(info.seed); genMap(mode); RNG = Math.random;
+  G.theme = THEMES[info.theme]; G.mapName = info.name;
+  G.brawlers = roster.map((r, i) => {
+    const b = new Brawler(r.type, r.team, r.x, r.y, i === myIdx, r.name, r.lvl);
+    b.peer = r.peer; b.human = r.human; b.idx = i;
+    return b;
+  });
+  player = G.brawlers[myIdx];
+  if (kind === 'ball') G.ball = { x: W * T / 2, y: H * T / 2, vx: 0, vy: 0, z: 0, vz: 0, carrier: null, noGrab: null, noGrabT: 0 };
   G.cam.x = player.x; G.cam.y = player.y;
-  G.msg = { text: mode === 'sd' ? 'SHOWDOWN!' : 'JUWELENJAGD!', t: 2 };
+  G.msg = { text: MODE_DEF[mode].name + '!', t: 2 };
 }
 
 // =====================================================================
@@ -651,8 +717,16 @@ function particle(x, y, color, speed, life, size) {
   G.parts.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, t: 0, life: life * rand(.6, 1.2), color, size });
 }
 function floatText(x, y, txt, color) { G.texts.push({ x: x + rand(-10, 10), y, txt, color, t: 0 }); }
-function boom(x, y, r, color) {
+// colours that travel over the network as an index
+const PALETTE = ['#ffb13b', '#7fb6ff', '#c99a5a', '#9ff3ff', '#5cb8ff', '#ff5c5c', '#ffe066', '#ffd23f', '#ffd166', '#c9a6ff', '#bff6ff', '#ff9de0', '#ff9b3f'];
+const colorIdx = c => Math.max(0, PALETTE.indexOf(c));
+function ring(x, y, r, color, life) {
+  G.booms.push({ x, y, r, t: 0, life, color });
+  netEvent(['b', Math.round(x), Math.round(y), Math.round(r), colorIdx(color), Math.round(life * 100), 0]);
+}
+function boom(x, y, r, color, fromNet) {
   G.booms.push({ x, y, r, t: 0, life: 0.35, color: color || '#ffb13b' });
+  if (!fromNet) netEvent(['b', Math.round(x), Math.round(y), Math.round(r), colorIdx(color || '#ffb13b'), 35, 1]);
   for (let i = 0; i < 14; i++) particle(x, y, pick(['#ffdd57', '#ff8a2a', '#555']), r * 4, 0.5, 9);
   if (player && Math.hypot(player.x - x, player.y - y) < 700) G.shake = Math.max(G.shake, r / 12);
 }
@@ -677,7 +751,8 @@ function damage(target, amount, src, isSuper) {
   target.lastHurt = G.t; target.revealT = 1.0; target.flash = 0.12;
   const visible = target === player || src === player || (player && canSee(player.team, target));
   if (visible) floatText(target.x, target.y - 50, amount, src === player ? '#fff' : target === player ? '#ff4b4b' : '#ffdf5e');
-  if (src === player || (src && src.isPet && src.owner === player)) G.stats.damage += amount;
+  const dmgOwner = src && (src.isPet ? src.owner : src);
+  if (dmgOwner && dmgOwner.st) dmgOwner.st.damage += amount;
   if (src && src.isBrawler && !isSuper && src.alive) src.superCharge = Math.min(1, src.superCharge + amount / src.d.superCost);
   if (target.hp <= 0) kill(target, src);
 }
@@ -687,16 +762,26 @@ function kill(u, src) {
   u.alive = false; u.hp = 0; u.burst = null; u.leap = null;
   for (let i = 0; i < 18; i++) particle(u.x, u.y, pick([u.d.color, u.d.dark, '#fff']), 320, .8, 9);
   G.pets.forEach(p => { if (p.owner === u) p.dead = true; });
-  if (src && src.isBrawler && src.alive && src === player) { G.msg = { text: 'K.O.!', t: 1.1, small: true }; G.stats.kills++; }
+  if (src && src.isBrawler) src.st.kills++;
+  if (src && src.isBrawler && src.alive && src === player) G.msg = { text: 'K.O.!', t: 1.1, small: true };
   if (src && src.isBrawler && src.alive && !src.isPlayer && Math.random() < 0.35) src.emote = { e: pick(['😂', '👍', '😎']), t: 2 };
   G.feed.unshift({ a: src && src.isBrawler ? src : null, b: u, t: 4 });
+  netEvent(['k', src && src.isBrawler ? src.idx : -1, u.idx]);
   if (G.feed.length > 4) G.feed.length = 4;
-  if (G.mode === 'sd') {
+  if (G.kind === 'sd') {
     const drop = Math.max(1, u.cubes);
     for (let i = 0; i < drop; i++) G.pickups.push({ type: 'cube', x: u.x + rand(-30, 30), y: u.y + rand(-30, 30), t: 0 });
-    u.rank = G.brawlers.filter(b => b.alive).length + 1;
-    G.deadOrder.push(u);
-  } else {
+    const mates = G.brawlers.filter(m => m.team === u.team && m.alive);
+    if (MODE_DEF[G.mode].size > 1 && mates.length) u.respawnT = 10;
+    else { // whole team is out: its place = teams still alive + 1
+      const rank = new Set(G.brawlers.filter(m => m.alive).map(m => m.team)).size + 1;
+      for (const m of G.brawlers) if (m.team === u.team) { m.rank = rank; m.respawnT = 0; }
+      G.deadOrder.push(u);
+    }
+  } else if (G.kind === 'ball') {
+    if (G.ball.carrier === u) dropBall();
+    u.respawnT = 5;
+  } else if (G.kind === 'gg') {
     for (let i = 0; i < u.gems; i++) {
       const a = rand(0, TAU), s = rand(80, 220);
       G.pickups.push({ type: 'gem', x: u.x, y: u.y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, t: 0 });
@@ -728,6 +813,11 @@ function lobTarget(b, ang, d, max) {
 }
 
 function tryAttack(b, ang, d) {
+  if (G.net === 'client') return b === player && netAction('a', ang, d);
+  if (G.ball && G.ball.carrier === b) { // ball carriers kick instead of attacking
+    if (!b.alive || b.atkCD > 0) return false;
+    kickBall(b, ang, false); return true;
+  }
   if (!b.alive || b.ammo < 1 || b.atkCD > 0 || b.burst || b.leap) return false;
   b.ammo -= 1; b.atkCD = 0.32; b.lastAttack = G.t; b.revealT = 1.0; b.aim = ang;
   const dd = b.d;
@@ -759,9 +849,14 @@ function tryAttack(b, ang, d) {
 }
 
 function trySuper(b, ang, d) {
+  if (G.net === 'client') return b === player && b.superCharge >= 1 && netAction('s', ang, d);
+  if (G.ball && G.ball.carrier === b) {
+    if (b.superCharge < 1) return false;
+    b.superCharge = 0; b.st.super++; kickBall(b, ang, true); return true;
+  }
   if (!b.alive || b.superCharge < 1 || b.leap || b.burst) return false;
   b.superCharge = 0; b.lastAttack = G.t; b.revealT = 1.0; b.aim = ang;
-  if (b === player) G.stats.super++;
+  b.st.super++;
   const dd = b.d;
   switch (b.type) {
     case 'kira':
@@ -797,6 +892,7 @@ function trySuper(b, ang, d) {
 }
 
 function tryGadget(b) {
+  if (G.net === 'client') return b === player && b.gadgets > 0 && netAction('g', 0, 0);
   if (!b.alive || b.gadgets <= 0 || b.gadCD > 0 || b.leap) return false;
   b.gadgets--; b.gadCD = 4;
   const heal = (u, n) => { u.hp = Math.min(u.maxHp, u.hp + n); if (u === player || canSee(player.team, u)) floatText(u.x, u.y - 60, '+' + Math.round(n), '#5dff6a'); };
@@ -808,7 +904,7 @@ function tryGadget(b) {
     case 'boom': areaDamage(b, b.x, b.y, 110, 700 * b.dmgMult, false); boom(b.x, b.y, 110); break;
     case 'frost':
       areaDamage(b, b.x, b.y, 220, 300 * b.dmgMult, false, { slow: 2.5 });
-      G.booms.push({ x: b.x, y: b.y, r: 220, t: 0, life: 0.5, color: '#9ff3ff' });
+      ring(b.x, b.y, 220, '#9ff3ff', 0.5);
       break;
   }
   for (let i = 0; i < 10; i++) particle(b.x, b.y, '#5dff6a', 220, .5, 6);
@@ -838,10 +934,13 @@ function areaDamage(src, x, y, radius, dmg, isSuper, opts = {}) {
 // =====================================================================
 function updateBrawler(b, dt) {
   if (!b.alive) {
-    if (G.mode === 'gg' && b.respawnT > 0) {
+    if (b.respawnT > 0) {
       b.respawnT -= dt;
       if (b.respawnT <= 0) {
-        b.alive = true; b.hp = b.maxHp; b.ammo = 3; b.x = b.spawn.x; b.y = b.spawn.y; b.revealT = 0; b.slow = 0; b.knock = null;
+        if (G.kind === 'sd') { // team showdown: come back next to a living teammate
+          const mate = G.brawlers.find(m => m.team === b.team && m.alive);
+          if (mate) { const f = findFree(mate.x + 40, mate.y, 22); reviveAt(b, f.x, f.y); }
+        } else reviveAt(b, b.spawn.x, b.spawn.y);
       }
     }
     return;
@@ -883,12 +982,12 @@ function updateBrawler(b, dt) {
     if (m > 1) { mx /= m; my /= m; }
     const sp = b.d.speed * (b.slow > 0 ? 0.55 : 1);
     moveUnit(b, mx * sp * dt, my * sp * dt);
-    if (m > 0.1) b.walkT += dt; else b.walkT = 0;
+    if (m > 0.1 || b.remoteWalk) b.walkT += dt; else b.walkT = 0;
   }
   b.vx = (b.x - px) / dt; b.vy = (b.y - py) / dt;
   b.inBush = tileAtPx(b.x, b.y) === 2;
   // gas
-  if (G.mode === 'sd' && G.gasInset > 0) {
+  if (G.gasInset > 0) {
     const g = G.gasInset;
     if (b.x < g || b.y < g || b.x > W * T - g || b.y > H * T - g) {
       b.gasT -= dt;
@@ -943,7 +1042,7 @@ function updateProjectiles(dt) {
           boom(p.tx, p.ty, 60, '#c99a5a');
         } else if (p.kind === 'storm') {
           areaDamage(p.owner, p.tx, p.ty, p.radius, p.dmg, true, { slow: p.slow });
-          G.booms.push({ x: p.tx, y: p.ty, r: p.radius, t: 0, life: 0.6, color: '#9ff3ff' });
+          ring(p.tx, p.ty, p.radius, '#9ff3ff', 0.6);
           for (let i = 0; i < 20; i++) particle(p.tx, p.ty, pick(['#e6fdff', '#9ff3ff', '#4fd8ff']), 400, .7, 7);
         } else {
           areaDamage(p.owner, p.tx, p.ty, p.radius, p.dmg, p.isSuper, { breakWalls: p.breakWalls });
@@ -975,6 +1074,7 @@ function updateProjectiles(dt) {
           if (p.kind === 'ice') dmg *= 0.6 + 1.4 * Math.min(1, p.dist / p.range);
           p.hit.add(u);
           damage(u, dmg, p.owner, p.isSuper);
+          if (p.knock && u.isBrawler && u.alive && G.ball && G.ball.carrier === u) dropBall();
           if (p.knock && u.isBrawler && u.alive && !u.leap) u.knock = { vx: Math.cos(p.ang) * p.knock, vy: Math.sin(p.ang) * p.knock, t: 0.22 };
           for (let i = 0; i < 4; i++) particle(p.x, p.y, p.color, 180, .3, 5);
           if (!p.pierce) { p.dead = true; break; }
@@ -996,12 +1096,12 @@ function updatePickups(dt) {
       if ((b.x - k.x) ** 2 + (b.y - k.y) ** 2 < (b.r + 18) ** 2) {
         k.dead = true;
         if (k.type === 'cube') {
-          if (b === player) G.stats.cubes++;
+          b.st.cubes++;
           b.cubes++; b.maxHp += 400; b.hp += 400; b.dmgMult = b.lvlMult * (1 + 0.1 * b.cubes);
           if (b === player || canSee(player.team, b)) floatText(b.x, b.y - 60, '+1 ⬛', '#5dff6a');
         } else {
           b.gems++;
-          if (b === player) G.stats.gems++;
+          b.st.gems++;
         }
         break;
       }
@@ -1012,12 +1112,14 @@ function updatePickups(dt) {
 
 function updateMode(dt) {
   if (G.over) return;
-  if (G.mode === 'sd') {
+  if (G.kind === 'sd') {
     if (G.t > 18) G.gasInset = Math.min(Math.min(W, H) * T / 2 - 260, (G.t - 18) * 15);
-    const alive = G.brawlers.filter(b => b.alive);
-    if (!player.alive) endGame(player.rank);
-    else if (alive.length === 1) { player.rank = 1; endGame(1); }
-  } else {
+    const teams = new Set(G.brawlers.filter(b => b.alive).map(b => b.team));
+    if (player.rank) endGame(player.rank);
+    else if (teams.size === 1 && teams.has(player.team)) { for (const b of G.brawlers) if (b.team === player.team) b.rank = 1; endGame(1); }
+  } else if (G.kind === 'ball') updateBall(dt);
+  else if (G.kind === 'ko') updateKO(dt);
+  else {
     G.timeLeft -= dt;
     G.gemT -= dt;
     if (G.gemT <= 0 && G.pickups.filter(k => k.type === 'gem').length < 29) {
@@ -1046,10 +1148,94 @@ function updateMode(dt) {
   }
 }
 
+// ---------- Knockout: best of 3 rounds, no respawns ----------
+function updateKO(dt) {
+  if (G.resetT > 0) { G.resetT -= dt; if (G.resetT <= 0) resetRound(); return; }
+  G.roundT += dt;
+  if (G.roundT > 35) G.gasInset = Math.min(Math.min(W, H) * T / 2 - 200, (G.roundT - 35) * 18);
+  const alive = [0, 1].map(t => G.brawlers.some(b => b.team === t && b.alive));
+  if (alive[0] && alive[1]) return;
+  const winner = alive[0] ? 0 : alive[1] ? 1 : -1;
+  if (winner >= 0) G.score[winner]++;
+  if (G.score[0] >= 2 || G.score[1] >= 2) { endGame(G.score[player.team] >= 2 ? 1 : 2); return; }
+  G.msg = { text: winner === -1 ? 'UNENTSCHIEDEN' : winner === player.team ? 'RUNDE GEWONNEN!' : 'RUNDE VERLOREN', t: 2.2, small: true };
+  G.resetT = 2.5;
+}
+function reviveAt(b, x, y) {
+  b.alive = true; b.respawnT = 0; b.rank = 0; b.x = x; b.y = y; b.ammo = 3; b.revealT = 0; b.slow = 0;
+  b.knock = null; b.leap = null; b.burst = null;
+  if (G.kind === 'sd') { b.cubes = 0; b.maxHp = Math.round(b.d.hp * b.lvlMult); b.dmgMult = b.lvlMult; }
+  b.hp = b.maxHp;
+}
+// Knockout round / Brawl Ball kick-off: everyone back to their spawn
+function resetRound() {
+  if (G.kind === 'ko') { RNG = mulberry32(G.info.seed); genMap(G.mode); RNG = Math.random; G.round++; G.mapGen = (G.mapGen || 0) + 1; }
+  G.roundT = 0; G.gasInset = 0; G.proj = []; G.pets = []; G.pickups = [];
+  for (const b of G.brawlers) reviveAt(b, b.spawn.x, b.spawn.y);
+  if (G.ball) Object.assign(G.ball, { x: W * T / 2, y: H * T / 2, vx: 0, vy: 0, z: 0, vz: 0, carrier: null, noGrab: null });
+  G.msg = { text: G.kind === 'ko' ? 'RUNDE ' + G.round : 'ANSTOSS!', t: 1.5, small: true };
+}
+
+// ---------- Brawl Ball ----------
+function ballGoal(team) { // the goal `team` shoots at: team 0 starts at the bottom and attacks the top
+  const cx = W * T / 2, hw = 2.5 * T;
+  return team === 0 ? { x0: cx - hw, x1: cx + hw, y0: 0, y1: 2 * T } : { x0: cx - hw, x1: cx + hw, y0: H * T - 2 * T, y1: H * T };
+}
+function dropBall() {
+  const bl = G.ball; if (!bl.carrier) return;
+  bl.noGrab = bl.carrier; bl.noGrabT = 0.3; bl.carrier = null; bl.vx = bl.vy = 0;
+}
+function kickBall(b, ang, strong) {
+  const bl = G.ball, sp = strong ? 1300 : 950;
+  bl.carrier = null; bl.vx = Math.cos(ang) * sp; bl.vy = Math.sin(ang) * sp; bl.vz = strong ? 450 : 140;
+  bl.noGrab = b; bl.noGrabT = 0.45;
+  b.atkCD = 0.4; b.lastAttack = G.t; b.aim = ang; b.revealT = 1;
+}
+function updateBall(dt) {
+  G.timeLeft -= dt;
+  if (G.resetT > 0) { G.resetT -= dt; if (G.resetT <= 0) resetRound(); return; }
+  const bl = G.ball;
+  if (bl.carrier && !bl.carrier.alive) dropBall();
+  if (bl.carrier) {
+    const c = bl.carrier;
+    bl.x = c.x + Math.cos(c.aim) * 24; bl.y = c.y + Math.sin(c.aim) * 24 + 8; bl.z = 0; bl.vx = bl.vy = 0;
+  } else {
+    bl.vz -= 1500 * dt; bl.z += bl.vz * dt;
+    if (bl.z <= 0) { bl.z = 0; bl.vz = bl.vz < -250 ? -bl.vz * 0.45 : 0; }
+    const f = Math.pow(bl.z > 0 ? 0.6 : 0.2, dt); bl.vx *= f; bl.vy *= f;
+    const steps = Math.ceil(Math.hypot(bl.vx, bl.vy) * dt / 10) || 1;
+    for (let i = 0; i < steps; i++) {
+      const nx = bl.x + bl.vx * dt / steps, ny = bl.y + bl.vy * dt / steps, low = bl.z < 45;
+      if (low && collidesAt(nx, bl.y, 14)) bl.vx *= -0.6; else bl.x = nx;
+      if (low && collidesAt(bl.x, ny, 14)) bl.vy *= -0.6; else bl.y = ny;
+    }
+    bl.x = clamp(bl.x, 16, W * T - 16); bl.y = clamp(bl.y, 16, H * T - 16);
+    if (bl.z < 45 && collidesAt(bl.x, bl.y, 12)) { const fr = findFree(bl.x, bl.y, 14); bl.x = fr.x; bl.y = fr.y; }
+    bl.noGrabT -= dt;
+    if (bl.z < 30) for (const b of G.brawlers) {
+      if (!b.alive || b.leap || (b === bl.noGrab && bl.noGrabT > 0)) continue;
+      if ((b.x - bl.x) ** 2 + (b.y - bl.y) ** 2 < (b.r + 16) ** 2) { bl.carrier = b; break; }
+    }
+  }
+  for (const team of [0, 1]) {
+    const g = ballGoal(team);
+    if (bl.x > g.x0 && bl.x < g.x1 && bl.y > g.y0 && bl.y < g.y1) { scoreGoal(team); return; }
+  }
+  if (G.timeLeft <= 0) { const m = G.score[player.team], o = G.score[1 - player.team]; endGame(m > o ? 1 : m < o ? 2 : 3); }
+}
+function scoreGoal(team) {
+  G.score[team]++;
+  boom(G.ball.x, G.ball.y, 90, team === player.team ? '#5cb8ff' : '#ff5c5c');
+  G.ball.carrier = null; G.ball.vx = G.ball.vy = 0;
+  if (G.score[team] >= 2) { endGame(team === player.team ? 1 : 2); return; }
+  G.msg = { text: team === player.team ? 'TOR!' : 'GEGENTOR!', t: 2 };
+  G.resetT = 2.5;
+}
+
 function endGame(rank) {
   if (G.over) return;
   G.over = true; G.endT = 2.2; G.finalRank = rank;
-  if (G.mode === 'sd') G.msg = { text: rank === 1 ? 'SIEG!' : rank + '. PLATZ', t: 3 };
+  if (G.kind === 'sd') G.msg = { text: rank === 1 ? 'SIEG!' : rank + '. PLATZ', t: 3 };
   else G.msg = { text: rank === 1 ? 'SIEG!' : rank === 3 ? 'UNENTSCHIEDEN' : 'NIEDERLAGE', t: 3 };
 }
 
@@ -1105,7 +1291,7 @@ function botThink(b, dt) {
   if (b.thinkT <= 0) {
     b.thinkT = rand(0.12, 0.25);
     // calm start in Showdown: bots farm boxes first unless someone comes close or hits them
-    const calm = G.mode === 'sd' && G.t < 25 && G.t - b.lastHurt > 3;
+    const calm = G.kind === 'sd' && G.t < 25 && G.t - b.lastHurt > 3;
     let best = null, bd = calm ? 280 : 500 + 300 * b.skill;
     for (const u of units()) {
       if (u.team === b.team || u.dead || !canSee(b.team, u)) continue;
@@ -1119,7 +1305,7 @@ function botThink(b, dt) {
     b.goal = null;
     const range = b.d.range;
     const hpFrac = b.hp / b.maxHp;
-    if (G.mode === 'sd' && !inSafe(b.x, b.y, 120)) {
+    if (G.gasInset > 0 && !inSafe(b.x, b.y, 120)) {
       b.goal = { x: W * T / 2 + rand(-100, 100), y: H * T / 2 + rand(-100, 100) };
     } else if (G.mode === 'gg' && b.gems > 0 && G.teamGems && G.teamGems[b.team] >= 10 && G.teamGems[b.team] > G.teamGems[1 - b.team] - 0) {
       // carrier: retreat to own spawn
@@ -1142,7 +1328,7 @@ function botThink(b, dt) {
       let pk = null, pd = G.mode === 'gg' ? 1500 : 700;
       for (const k of G.pickups) { const d = dist(k, b); if (d < pd) { pd = d; pk = k; } }
       if (pk) b.goal = { x: pk.x, y: pk.y };
-      else if (G.mode === 'sd') {
+      else if (G.kind === 'sd') {
         // nearest box
         let bx = null, bdd = 750;
         const cx = Math.floor(b.x / T), cy = Math.floor(b.y / T);
@@ -1165,7 +1351,22 @@ function botThink(b, dt) {
       }
     }
   }
+  if (G.kind === 'ball') botBall(b);
+  if (G.kind === 'sd' && MODE_DEF[G.mode].size > 1 && !b.target) { // stay close to the teammate
+    const mate = G.brawlers.find(m => m !== b && m.team === b.team && m.alive);
+    if (mate && dist(mate, b) > 420) b.goal = { x: mate.x, y: mate.y };
+  }
   if (b.goal) steer(b, b.goal.x, b.goal.y); else { b.mx = 0; b.my = 0; }
+  if (G.ball && G.ball.carrier === b) { // carrying the ball: run to the enemy goal and shoot when close
+    const g = ballGoal(b.team), gx = (g.x0 + g.x1) / 2, gy = (g.y0 + g.y1) / 2, dg = Math.hypot(gx - b.x, gy - b.y);
+    b.aim = Math.atan2(gy - b.y, gx - b.x);
+    const threat = b.target && !b.target.isPet && dist(b.target, b) < 160;
+    if (b.react <= 0 && b.atkCD <= 0 && (dg < 430 || threat) && G.resetT <= 0) {
+      const ang = b.aim + rand(-0.12, 0.12);
+      if (b.superCharge >= 1 && dg > 320) trySuper(b, ang, dg); else tryAttack(b, ang, dg);
+    }
+    return;
+  }
 
   // Gadget (bots use it now and then, when it makes sense)
   if (b.gadgets > 0 && b.gadCD <= 0 && Math.random() < 0.015) {
@@ -1199,6 +1400,21 @@ function botThink(b, dt) {
       if (tryAttack(b, b.aim, d)) b.fireT = rand(0.4, 0.9);
     }
   } else if (b.mx || b.my) b.aim = Math.atan2(b.my, b.mx);
+}
+function botBall(b) {
+  const bl = G.ball;
+  if (G.resetT > 0 || bl.carrier === b) { if (bl.carrier === b) { const g = ballGoal(b.team); b.goal = { x: (g.x0 + g.x1) / 2, y: g.y1 - 10 }; } return; }
+  if (!bl.carrier) {
+    // the teammate closest to a loose ball goes for it, anyone near it too
+    const mates = G.brawlers.filter(m => m.alive && m.team === b.team);
+    const closest = mates.reduce((a, m) => dist(m, bl) < dist(a, bl) ? m : a, b);
+    if (closest === b || dist(b, bl) < 350) b.goal = { x: bl.x, y: bl.y };
+  } else if (bl.carrier.team !== b.team) {
+    b.goal = { x: bl.carrier.x, y: bl.carrier.y };
+    if (canSee(b.team, bl.carrier)) b.target = bl.carrier;
+  } else if (!b.target) {
+    b.goal = { x: bl.carrier.x + (b.idx % 2 ? 90 : -90), y: bl.carrier.y + (b.team === 0 ? -110 : 110) };
+  }
 }
 function hasLOSBox(a, p) {
   const d = Math.hypot(p.x - a.x, p.y - a.y), n = Math.ceil(d / 20);
@@ -1235,7 +1451,7 @@ addEventListener('keydown', e => {
   if (e.code === 'Space' || e.code === 'KeyE') { const a = mouseAim(); trySuper(player, a.ang, a.d); e.preventDefault(); }
   if (e.code === 'KeyQ') { const a = autoAim(player, player.d.range); tryAttack(player, a.ang, a.d); }
   if (e.code === 'KeyF') tryGadget(player);
-  if (e.code === 'KeyT') player.emote = { e: pick(EMOTES), t: 2 };
+  if (e.code === 'KeyT') doEmote(player);
 });
 addEventListener('keyup', e => { keys[e.code] = false; });
 cv.addEventListener('contextmenu', e => e.preventDefault());
@@ -1247,7 +1463,7 @@ cv.addEventListener('mousedown', e => {
   const bp = btnPos();
   const a = mouseAim();
   if (Math.hypot(mp.x - bp.gad.x, mp.y - bp.gad.y) < bp.gad.r && player.gadgets > 0) tryGadget(player);
-  else if (Math.hypot(mp.x - bp.emo.x, mp.y - bp.emo.y) < bp.emo.r) player.emote = { e: pick(EMOTES), t: 2 };
+  else if (Math.hypot(mp.x - bp.emo.x, mp.y - bp.emo.y) < bp.emo.r) doEmote(player);
   else if (e.button === 2 || Math.hypot(mp.x - bp.sup.x, mp.y - bp.sup.y) < bp.sup.r) trySuper(player, a.ang, a.d);
   else if (e.button === 0) { mouse.down = true; tryAttack(player, a.ang, a.d); }
 });
@@ -1264,7 +1480,7 @@ function autoAim(b, range) {
     if (u.team === b.team || u.dead || !canSee(b.team, u)) continue;
     const d = dist(u, b); if (d < bd) { bd = d; best = u; }
   }
-  if (!best && G.mode === 'sd') {
+  if (!best && G.kind === 'sd') {
     const cx = Math.floor(b.x / T), cy = Math.floor(b.y / T), r = Math.ceil(range / T);
     for (let ty = cy - r; ty <= cy + r; ty++) for (let tx = cx - r; tx <= cx + r; tx++) {
       if (tileAt(tx, ty) !== 4 || tx < 0 || ty < 0 || tx >= W || ty >= H) continue;
@@ -1283,7 +1499,7 @@ cv.addEventListener('touchstart', e => {
   for (const t of e.changedTouches) {
     const { x, y } = toApp(t.clientX, t.clientY);
     if (Math.hypot(x - bp.gad.x, y - bp.gad.y) < bp.gad.r * 1.3 && player.gadgets > 0) { tryGadget(player); continue; }
-    if (Math.hypot(x - bp.emo.x, y - bp.emo.y) < bp.emo.r * 1.3) { player.emote = { e: pick(EMOTES), t: 2 }; continue; }
+    if (Math.hypot(x - bp.emo.x, y - bp.emo.y) < bp.emo.r * 1.3) { doEmote(player); continue; }
     if (!sticks.sup && Math.hypot(x - bp.sup.x, y - bp.sup.y) < bp.sup.r * 1.3) sticks.sup = { id: t.identifier, ox: bp.sup.x, oy: bp.sup.y, x, y, max: bp.sup.r * 1.4 };
     else if (x > VW * 0.5 && !sticks.atk) sticks.atk = { id: t.identifier, ox: bp.atk.x, oy: bp.atk.y, sx: x, sy: y, x: bp.atk.x, y: bp.atk.y, max: bp.atk.r * 1.2, moved: false };
     else if (x <= VW * 0.5 && !sticks.move) sticks.move = { id: t.identifier, ox: x, oy: y, x, y, max: bp.mov.r };
@@ -1356,10 +1572,16 @@ function updatePlayer(dt) {
 // =====================================================================
 //  Main update
 // =====================================================================
+function doEmote(b) {
+  b.emote = { e: pick(EMOTES), t: 2 };
+  if (G.net === 'client') netAction('e', EMOTES.indexOf(b.emote.e), 0);
+}
+
 function update(dt) {
   G.t += dt;
   updatePlayer(dt);
-  for (const b of G.brawlers) if (!b.isPlayer) botThink(b, dt);
+  if (G.net === 'host') netHostPre(dt);
+  for (const b of G.brawlers) if (!b.isPlayer && !b.peer) botThink(b, dt);
   for (const b of G.brawlers) updateBrawler(b, dt);
   for (const p of G.pets) updatePet(p, dt);
   G.pets = G.pets.filter(p => !p.dead);
@@ -1367,21 +1589,24 @@ function update(dt) {
   updatePickups(dt);
   updateMode(dt);
   updateEffects(dt);
-  // camera
+  if (G.net === 'host') netHostPost(dt);
+  updateCamera(dt);
+  if (G.over) {
+    G.endT -= dt;
+    if (G.endT <= 0 && !G.resultShown) showResult();
+  }
+}
+function updateCamera(dt) {
   let fx = player.x, fy = player.y;
-  if (!player.alive && G.mode === 'sd') {
-    const killer = G.brawlers.find(b => b.alive);
-    if (killer) { fx = killer.x; fy = killer.y; }
+  if (!player.alive && (G.kind === 'sd' || G.kind === 'ko')) { // spectate a teammate, else anyone
+    const f = G.brawlers.find(b => b.alive && b.team === player.team) || G.brawlers.find(b => b.alive);
+    if (f) { fx = f.x; fy = f.y; }
   }
   const k = 1 - Math.pow(0.0005, dt);
   G.cam.x += (fx - G.cam.x) * k; G.cam.y += (fy - G.cam.y) * k;
   const hw = VW / 2 / zoom, hh = VH / 2 / zoom;
   G.cam.x = W * T < hw * 2 ? W * T / 2 : clamp(G.cam.x, hw - T, W * T - hw + T);
   G.cam.y = H * T < hh * 2 ? H * T / 2 : clamp(G.cam.y, hh - T, H * T - hh + T);
-  if (G.over) {
-    G.endT -= dt;
-    if (G.endT <= 0 && !G.resultShown) showResult();
-  }
 }
 
 // =====================================================================
@@ -1530,6 +1755,15 @@ function drawSkull(c, x, y, r, col) {
   c.beginPath(); c.moveTo(0, r * 0.25); c.lineTo(-r * 0.13, r * 0.5); c.lineTo(r * 0.13, r * 0.5); c.closePath(); c.fill();
   c.restore();
 }
+function drawBallIcon(c, x, y, r) {
+  c.save(); c.translate(x, y);
+  c.fillStyle = '#fff'; c.strokeStyle = '#111'; c.lineWidth = Math.max(2, r * 0.15);
+  c.beginPath(); c.arc(0, 0, r, 0, TAU); c.fill(); c.stroke();
+  c.fillStyle = '#222';
+  c.beginPath(); for (let i = 0; i < 5; i++) { const a = -Math.PI / 2 + i / 5 * TAU; c.lineTo(Math.cos(a) * r * 0.38, Math.sin(a) * r * 0.38); } c.closePath(); c.fill();
+  for (let i = 0; i < 5; i++) { const a = -Math.PI / 2 + i / 5 * TAU; c.beginPath(); c.arc(Math.cos(a) * r * 0.9, Math.sin(a) * r * 0.9, r * 0.22, 0, TAU); c.fill(); }
+  c.restore();
+}
 function drawGem(c, x, y, s) {
   c.save(); c.translate(x, y); c.scale(s, s);
   c.lineWidth = 2.5; c.strokeStyle = '#111';
@@ -1583,12 +1817,26 @@ function render() {
   // map border
   c.strokeStyle = TH.border; c.lineWidth = 14; c.strokeRect(-7, -7, W * T + 14, H * T + 14);
 
-  // spawn pads & gem mine
-  if (G.mode === 'gg') {
-    for (const b of G.brawlers) {
-      c.fillStyle = b.team === player.team ? 'rgba(60,140,255,.35)' : 'rgba(255,60,60,.35)';
-      c.beginPath(); c.arc(b.spawn.x, b.spawn.y, 45, 0, TAU); c.fill();
-    }
+  // spawn pads, goals & gem mine
+  if (G.kind !== 'sd') for (const b of G.brawlers) {
+    c.fillStyle = b.team === player.team ? 'rgba(60,140,255,.35)' : 'rgba(255,60,60,.35)';
+    c.beginPath(); c.arc(b.spawn.x, b.spawn.y, 45, 0, TAU); c.fill();
+  }
+  if (G.kind === 'ball') for (const team of [0, 1]) {
+    const g = ballGoal(team), mine = team !== player.team; // the goal the other team attacks is ours
+    c.fillStyle = mine ? 'rgba(60,140,255,.45)' : 'rgba(255,60,60,.45)'; c.fillRect(g.x0, g.y0, g.x1 - g.x0, g.y1 - g.y0);
+    c.strokeStyle = '#fff'; c.lineWidth = 6; c.setLineDash([16, 12]); c.strokeRect(g.x0, g.y0, g.x1 - g.x0, g.y1 - g.y0); c.setLineDash([]);
+    // goal net
+    c.strokeStyle = 'rgba(255,255,255,.35)'; c.lineWidth = 2; c.beginPath();
+    for (let x = g.x0; x <= g.x1; x += 20) { c.moveTo(x, g.y0); c.lineTo(x, g.y1); }
+    for (let y = g.y0; y <= g.y1; y += 20) { c.moveTo(g.x0, y); c.lineTo(g.x1, y); }
+    c.stroke();
+  }
+  if (G.kind === 'ball') { // centre circle
+    c.strokeStyle = 'rgba(255,255,255,.4)'; c.lineWidth = 5; c.beginPath(); c.arc(W * T / 2, H * T / 2, 110, 0, TAU); c.stroke();
+    c.beginPath(); c.moveTo(0, H * T / 2); c.lineTo(W * T, H * T / 2); c.stroke();
+  }
+  if (G.kind === 'gg') {
     const mx = W * T / 2, my = H * T / 2;
     c.fillStyle = '#3a2350'; c.strokeStyle = '#111'; c.lineWidth = 5;
     c.beginPath(); c.ellipse(mx, my, 64, 44, 0, 0, TAU); c.fill(); c.stroke();
@@ -1629,6 +1877,14 @@ function render() {
     }
   }
   while (di < drawables.length) drawables[di++].f();
+
+  // the ball
+  if (G.ball && G.resetT <= 0) {
+    const bl = G.ball;
+    c.fillStyle = 'rgba(0,0,0,.3)'; c.beginPath(); c.ellipse(bl.x, bl.y + 10, 15, 6, 0, 0, TAU); c.fill();
+    drawBallIcon(c, bl.x, bl.y - 4 - bl.z * 0.6, 15);
+    if (bl.carrier) { c.strokeStyle = bl.carrier.team === player.team ? '#5cb8ff' : '#ff5c5c'; c.lineWidth = 3; c.beginPath(); c.arc(bl.x, bl.y - 4, 20, 0, TAU); c.stroke(); }
+  }
 
   // bushes
   for (let ty = y0; ty <= y1; ty++) for (let tx = x0; tx <= x1; tx++) if (tiles[ty * W + tx] === 2) {
@@ -1671,7 +1927,7 @@ function render() {
   c.globalAlpha = 1;
 
   // gas
-  if (G.mode === 'sd' && G.gasInset > 0) {
+  if (G.gasInset > 0) {
     const g = G.gasInset, Wp = W * T, Hp = H * T;
     c.fillStyle = 'rgba(70,200,90,.42)';
     c.fillRect(-200, -200, Wp + 400, g + 200); c.fillRect(-200, Hp - g, Wp + 400, g + 200);
@@ -1784,7 +2040,7 @@ function drawOverhead(c, b) {
       c.fillStyle = f >= 1 ? '#ff9f1c' : '#b06a10'; c.fillRect(b.x - w / 2 + i * seg + 1, y + 10, (seg - 2) * f, 7);
     }
   }
-  if (G.mode === 'sd' && b.cubes > 0) { drawCube(c, b.x - 10, y - 54, 0.8); txt(c, String(b.cubes), b.x + 4, y - 54, 18, '#9dff9d', 'left', 4); }
+  if (G.kind === 'sd' && b.cubes > 0) { drawCube(c, b.x - 10, y - 54, 0.8); txt(c, String(b.cubes), b.x + 4, y - 54, 18, '#9dff9d', 'left', 4); }
   if (G.mode === 'gg' && b.gems > 0) { drawGem(c, b.x, y - 56, 1); txt(c, String(b.gems), b.x + 16, y - 56, 18, '#f1b6ff', 'left', 4); }
   if (b.emote) {
     const ey = y - (G.mode === 'gg' && b.gems > 0 ? 95 : 70) - Math.min(0, (b.emote.t - 1.8) * 60);
@@ -1867,12 +2123,26 @@ function drawProjectile(c, p, time) {
 function drawHUD(c) {
   c.setTransform(DPR, 0, 0, DPR, 0, 0);
   // top info
-  if (G.mode === 'sd') {
+  const lx = parseFloat(document.documentElement.style.fontSize) * 3.2 + 14;
+  if (G.kind === 'sd') {
     const alive = G.brawlers.filter(b => b.alive).length;
-    const lx = parseFloat(document.documentElement.style.fontSize) * 3.2 + 14;
+    const teams = new Set(G.brawlers.filter(b => b.alive || b.respawnT > 0).map(b => b.team)).size;
     drawSkull(c, lx, 30, 13);
-    txt(c, 'Übrige Brawler: ' + alive, lx + 20, 30, 26, '#fff', 'left', 5);
+    txt(c, MODE_DEF[G.mode].size > 1 ? 'Übrige Teams: ' + teams : 'Übrige Brawler: ' + alive, lx + 20, 30, 26, '#fff', 'left', 5);
     if (G.gasInset <= 0 && G.t < 18) txt(c, 'Gas in ' + Math.ceil(18 - G.t) + 's', lx + 20, 62, 18, '#9dff9d', 'left', 4);
+  } else if (G.kind === 'ball' || G.kind === 'ko') {
+    const mine = G.score[player.team], their = G.score[1 - player.team];
+    c.fillStyle = 'rgba(0,0,0,.45)'; roundRect(c, VW / 2 - 150, 10, 300, 50, 12); c.fill();
+    txt(c, String(mine), VW / 2 - 60, 35, 34, '#5cb8ff'); txt(c, String(their), VW / 2 + 60, 35, 34, '#ff5c5c');
+    if (G.kind === 'ball') { drawBallIcon(c, VW / 2 - 115, 35, 15); drawBallIcon(c, VW / 2 + 115, 35, 15); txt(c, 'TORE', VW / 2, 35, 18, '#fff'); }
+    else {
+      txt(c, 'RUNDE ' + G.round, VW / 2, 35, 18, '#fff');
+      for (const t of [0, 1]) { // remaining fighters per team
+        const n = G.brawlers.filter(b => b.team === t && b.alive).length, x0 = t === player.team ? VW / 2 - 140 : VW / 2 + 92;
+        for (let i = 0; i < 3; i++) { c.fillStyle = i < n ? (t === player.team ? '#5cb8ff' : '#ff5c5c') : '#333'; c.beginPath(); c.arc(x0 + i * 16, 35, 6, 0, TAU); c.fill(); }
+      }
+      if (G.gasInset <= 0 && G.roundT < 35 && G.resetT <= 0) txt(c, 'Gas in ' + Math.ceil(35 - G.roundT) + 's', VW / 2, 74, 18, '#9dff9d', 'center', 4);
+    }
   } else {
     const g = G.teamGems || [0, 0];
     const mine = g[player.team], their = g[1 - player.team];
@@ -1885,8 +2155,8 @@ function drawHUD(c) {
       txt(c, (ours ? 'Halten! ' : 'Gegner gewinnt in ') + Math.ceil(G.countdown), VW / 2, 82, 26, ours ? '#5cb8ff' : '#ff5c5c', 'center', 5);
     }
   }
-  if (!player.alive && G.mode === 'gg' && !G.over) txt(c, 'Respawn in ' + Math.ceil(player.respawnT), VW / 2, VH / 2 - 60, 36, '#fff', 'center', 6);
-  if (!player.alive && G.mode === 'sd' && !G.over) txt(c, 'BESIEGT', VW / 2, VH / 2, 50, '#ff5c5c', 'center', 7);
+  if (!player.alive && player.respawnT > 0 && !G.over) txt(c, 'Respawn in ' + Math.ceil(player.respawnT), VW / 2, VH / 2 - 60, 36, '#fff', 'center', 6);
+  else if (!player.alive && !G.over && G.resetT <= 0) txt(c, 'BESIEGT', VW / 2, VH / 2, 50, '#ff5c5c', 'center', 7);
 
   // touch controls
   const bp = btnPos();
@@ -1943,10 +2213,10 @@ function drawHUD(c) {
     c.globalAlpha = 1;
   }
   // power cubes of player
-  if (G.mode === 'sd') {
+  if (G.kind === 'sd') {
     c.fillStyle = 'rgba(0,0,0,.45)'; roundRect(c, VW - 190, 12, 82, 40, 10); c.fill();
     drawCube(c, VW - 168, 32, 1.1); txt(c, String(player.cubes), VW - 134, 32, 24, '#9dff9d');
-  } else {
+  } else if (G.kind !== 'ko') {
     // match timer
     const tl = Math.max(0, Math.ceil(G.timeLeft));
     c.fillStyle = 'rgba(0,0,0,.45)'; roundRect(c, VW - 190, 12, 82, 40, 10); c.fill();
@@ -1957,7 +2227,7 @@ function drawHUD(c) {
   for (const f of G.feed) {
     c.globalAlpha = Math.min(1, f.t);
     const nameCol = b => b === player ? '#3cff5a' : b.team === player.team ? '#5cb8ff' : '#ff6b6b';
-    const killer = f.a ? f.a.name : (G.mode === 'sd' ? 'Gas' : '?');
+    const killer = f.a ? f.a.name : (G.gasInset > 0 ? 'Gas' : '?');
     c.font = "15px 'Lilita One', 'Arial Black', sans-serif";
     const wb = c.measureText(f.b.name).width, wk = c.measureText(killer).width;
     const w = wb + wk + 46;
@@ -1974,12 +2244,12 @@ function drawHUD(c) {
 //  Lobby & screens
 // =====================================================================
 const $ = id => document.getElementById(id);
-const screens = ['lobby', 'brawlerSel', 'modeSel', 'shopSel', 'questSel', 'newsSel', 'profileSel', 'match', 'result'];
+const screens = ['lobby', 'brawlerSel', 'modeSel', 'shopSel', 'questSel', 'newsSel', 'profileSel', 'teamSel', 'match', 'result'];
 function show(id) {
   const overLobby = id.endsWith('Sel');
   for (const s of screens) $(s).classList.toggle('show', s === id || (overLobby && s === 'lobby'));
 }
-const MODES = { sd: { name: 'SHOWDOWN', icon: '💀', col: '#3fbf3f' }, gg: { name: 'JUWELENJAGD', icon: '💎', col: '#b04dff' } };
+const MODES = MODE_DEF;
 const COIN = '<span class="coin"></span>';
 const GEM = '<span class="gemI"></span>';
 document.querySelectorAll('.trophyIcon').forEach(e => e.innerHTML = TROPHY_SVG);
@@ -2033,13 +2303,16 @@ function refreshLobby() {
   const m = MODES[save.mode];
   $('modeName').textContent = m.name; $('modeIcon').textContent = m.icon; $('modeIcon').style.background = m.col;
   drawIcon($('avatar'), save.sel, 1.6);
+  const wait = typeof inTeam === 'function' && inTeam() && !isHost();
+  $('playBtn').textContent = wait ? 'HOST STARTET' : 'SPIELEN';
+  $('playBtn').classList.toggle('wait', wait);
+  if (typeof netLobbyChanged === 'function') netLobbyChanged();
 }
 function updateMapLabels() {
   const info = mapInfo(save.mode), sec = Math.ceil(info.endsIn / 1000);
   $('mapName').textContent = info.name;
   $('mapTimer').textContent = 'Neue Map in: ' + Math.floor(sec / 60) + 'M ' + String(sec % 60).padStart(2, '0') + 'S';
-  $('mapSd').textContent = 'Karte: ' + mapInfo('sd').name;
-  $('mapGg').textContent = 'Karte: ' + mapInfo('gg').name;
+  for (const k of MODE_KEYS) { const el = $('map_' + k); if (el) el.textContent = 'Karte: ' + mapInfo(k).name; }
 }
 setInterval(() => { if (!G) updateMapLabels(); }, 1000);
 
@@ -2114,14 +2387,32 @@ function buildBrawlerGrid() {
 }
 
 $('brawlersBtn').onclick = () => { buildBrawlerGrid(); show('brawlerSel'); };
-$('modeBox').onclick = () => show('modeSel');
+$('modeBox').onclick = () => { buildModes(); show('modeSel'); };
 document.querySelectorAll('[data-close]').forEach(b => b.onclick = () => show('lobby'));
-document.querySelectorAll('[data-mode]').forEach(card => card.onclick = () => { save.mode = card.dataset.mode; persist(); refreshLobby(); show('lobby'); });
+function buildModes() {
+  const el = $('modeList'); el.innerHTML = '';
+  for (const k of MODE_KEYS) {
+    const d = MODE_DEF[k], card = document.createElement('div');
+    card.className = 'card modeCard' + (k === save.mode ? ' sel' : '');
+    card.innerHTML = `<div class="modeIcon" style="background:${d.col}">${d.icon}</div><div><div class="nm txt">${d.name}</div><p class="mapLine" id="map_${k}"></p><p>${d.desc}</p></div>`;
+    card.onclick = () => { if (!canPickMode(k)) return; save.mode = k; persist(); refreshLobby(); show('lobby'); if (typeof netLobbyChanged === 'function') netLobbyChanged(); };
+    el.appendChild(card);
+  }
+  updateMapLabels();
+}
+// overridden by the team code: in a team only the host picks, and solo modes need a team of one
+function canPickMode(k) { return true; }
 
 // Matchmaking -> (VS screen) -> game
 let matchTimer = null;
 $('playBtn').onclick = () => {
-  const total = save.mode === 'sd' ? 10 : 6;
+  if (inTeam() && !isHost()) { toast('Der Host (★) startet das Spiel.'); return; }
+  if (inTeam()) {
+    const def = MODE_DEF[save.mode];
+    if (NET.members.length > def.size) { toast('Für ' + def.name + ' seid ihr zu viele (' + NET.members.length + '). Wählt einen Modus mit größeren Teams.'); return; }
+    if (NET.members.some(m => m.peer !== NET.myPeer && m.presence.s === 'game')) { toast('Warte, bis alle wieder in der Lobby sind.'); return; }
+  }
+  const total = MODE_DEF[save.mode].teams * MODE_DEF[save.mode].size;
   show('match');
   $('vs').classList.remove('show');
   $('matchTitle').textContent = 'SPIELER WERDEN GESUCHT';
@@ -2138,16 +2429,24 @@ $('playBtn').onclick = () => {
 };
 function startMatch() {
   sticks.move = sticks.atk = sticks.sup = null; mouse.down = false;
-  newGame(save.mode, save.sel);
+  if (inTeam() && isHost()) netStartAsHost(); else newGame(save.mode, save.sel);
+  showVs();
+}
+function showVs() {
   G.paused = true;
+  show('match');
+  $('vs').classList.remove('show');
+  $('matchCount').hidden = true;
+  $('matchTitle').textContent = MODE_DEF[G.mode].name;
+  $('matchSub').textContent = G.mapName;
   const go = () => {
     if (!G) return;
     G.paused = false;
     for (const s of screens) $(s).classList.remove('show');
     $('exitBtn').style.display = 'block';
   };
-  if (G.mode === 'gg') {
-    $('matchTitle').textContent = 'JUWELENJAGD';
+  if (G.kind !== 'sd') {
+    $('matchTitle').textContent = MODE_DEF[G.mode].name;
     $('matchCount').hidden = true;
     $('matchSub').textContent = '';
     for (const [id, team] of [['teamBlue', player.team], ['teamRed', 1 - player.team]]) {
@@ -2155,7 +2454,8 @@ function startMatch() {
       for (const b of G.brawlers.filter(b => b.team === team)) {
         const div = document.createElement('div');
         div.className = 'txt';
-        div.innerHTML = '<canvas width="120" height="120"></canvas>' + b.name;
+        div.innerHTML = '<canvas width="120" height="120"></canvas>';
+        div.appendChild(document.createTextNode(b.name));
         drawIcon(div.querySelector('canvas'), b.type, 1.7);
         el.appendChild(div);
       }
@@ -2166,22 +2466,29 @@ function startMatch() {
 }
 $('exitBtn').onclick = () => { G = null; $('exitBtn').style.display = 'none'; refreshLobby(); show('lobby'); };
 $('resBtn').onclick = () => { G = null; refreshLobby(); show('lobby'); };
+$('slotL').onclick = $('slotR').onclick = () => { refreshTeamUI(); show('teamSel'); };
 
 function showResult() {
   G.resultShown = true;
   const rank = G.finalRank;
   let delta, coins, title, sub, color;
-  if (G.mode === 'sd') {
-    delta = [10, 8, 7, 6, 4, 2, 0, -1, -2, -3][rank - 1];
-    coins = [40, 32, 26, 20, 15, 11, 8, 6, 4, 2][rank - 1];
+  const def = MODE_DEF[G.mode];
+  sub = def.name + ' · ' + BR[player.type].name;
+  let won, xpBase;
+  if (def.kind === 'sd') {
+    const tab = {
+      sd: { tr: [10, 8, 7, 6, 4, 2, 0, -1, -2, -3], co: [40, 32, 26, 20, 15, 11, 8, 6, 4, 2], xp: [34, 30, 26, 22, 18, 14, 12, 10, 8, 6], top: 4 },
+      duo: { tr: [9, 7, 4, 0, -2], co: [40, 30, 20, 12, 6], xp: [34, 28, 22, 16, 10], top: 2 },
+      trio: { tr: [8, 5, 1, -2], co: [40, 28, 16, 8], xp: [34, 26, 18, 12], top: 2 },
+    }[G.mode];
+    delta = tab.tr[rank - 1]; coins = tab.co[rank - 1]; xpBase = tab.xp[rank - 1]; won = rank <= tab.top;
     title = rank === 1 ? 'SIEG!' : rank + '. PLATZ';
-    sub = 'Showdown · ' + BR[player.type].name;
-    color = rank === 1 ? '#ffd23f' : rank <= 4 ? '#fff' : '#ff6b6b';
+    color = rank === 1 ? '#ffd23f' : won ? '#fff' : '#ff6b6b';
   } else {
     delta = rank === 1 ? 8 : rank === 3 ? 0 : -4;
     coins = rank === 1 ? 24 : rank === 3 ? 14 : 8;
+    xpBase = rank === 1 ? 30 : rank === 3 ? 20 : 14; won = rank === 1;
     title = rank === 1 ? 'SIEG!' : rank === 3 ? 'UNENTSCHIEDEN' : 'NIEDERLAGE';
-    sub = 'Juwelenjagd · ' + BR[player.type].name;
     color = rank === 1 ? '#ffd23f' : rank === 3 ? '#fff' : '#ff6b6b';
   }
   const unlockedBefore = BRAWLER_KEYS.filter(isUnlocked);
@@ -2190,8 +2497,7 @@ function showResult() {
   delta = save.trophies[player.type] - before;
   save.coins += coins;
   // XP, daily wins and quests
-  const won = rank === 1 || (G.mode === 'sd' && rank <= 4);
-  let xp = (G.mode === 'sd' ? [34, 30, 26, 22, 18, 14, 12, 10, 8, 6][rank - 1] : rank === 1 ? 30 : rank === 3 ? 20 : 14) + G.stats.kills * 2;
+  let xp = xpBase + player.st.kills * 2;
   const extra = [];
   checkDaily();
   if (won && save.daily.wins < DAILY_REWARDS.length) {
@@ -2199,7 +2505,7 @@ function showResult() {
     if (r.coins) save.coins += r.coins; else save.gems += r.gems;
     extra.push('Täglicher Sieg: +' + (r.coins ? r.coins + ' Münzen' : r.gems + ' Edelsteine'));
   }
-  const prog = { kills: G.stats.kills, matches: 1, top: won ? 1 : 0, cubes: G.stats.cubes, damage: Math.round(G.stats.damage), gems: G.stats.gems, super: G.stats.super };
+  const prog = { kills: player.st.kills, matches: 1, top: won ? 1 : 0, cubes: player.st.cubes, damage: Math.round(player.st.damage), gems: player.st.gems, super: player.st.super };
   save.quests = save.quests.filter(q => {
     q.prog += prog[q.k] || 0;
     if (q.prog < q.goal) return true;
@@ -2236,14 +2542,381 @@ function drawPreview(t) {
 }
 
 // =====================================================================
+//  Team play with friends (room capability)
+//  A team code is a named room. Everything travels as presence (allowed for
+//  every viewer): each member publishes its lobby info and, in a match, its
+//  inputs; the host (whoever joined the team first) runs the whole game and
+//  publishes a compact snapshot ~15 times a second.
+// =====================================================================
+const NET = { room: null, ready: false, team: null, code: '', members: [], myPeer: '', hostPeer: '', joinedAt: 0,
+              seq: { a: 0, s: 0, g: 0, e: 0 }, last: {}, sendT: 0, snapT: 0, events: [], evId: 0, tileLog: [], tileSeq: 0,
+              gameId: '', seenGame: '', lastSnapK: -1, unsubs: [] };
+const MAX_TEAM = 3;
+const KINDS = ['bullet', 'punch', 'wave', 'ice', 'dyna', 'barrel', 'bear', 'storm'];
+const r1 = v => Math.round(v * 10) / 10;
+
+(async () => {
+  try { NET.room = (window.claude && await window.claude.use('room')) || null; } catch (e) { NET.room = null; }
+  NET.ready = true;
+  refreshTeamUI();
+})();
+
+const isHost = () => !!NET.team && !!NET.myPeer && NET.hostPeer === NET.myPeer;
+const inTeam = () => !!NET.team && NET.members.length > 1;
+function netEvent(ev) {
+  if (!G || G.net !== 'host') return;
+  NET.events.push([++NET.evId, ...ev]);
+  if (NET.events.length > 14) NET.events.shift();
+}
+function tileChanged(i) {
+  if (!G || G.net !== 'host') return;
+  NET.tileLog.push([++NET.tileSeq, i]);
+  if (NET.tileLog.length > 40) NET.tileLog.shift();
+}
+
+// ---------- team: create / join / leave ----------
+function newCode() {
+  const abc = 'abcdefghjkmnpqrstuvwxyz23456789';
+  let c = ''; for (let i = 0; i < 6; i++) c += abc[Math.floor(Math.random() * abc.length)];
+  return c;
+}
+async function joinTeam(code) {
+  code = String(code || '').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 12);
+  if (!NET.room || code.length < 4) { teamMsg('Ungültiger Code.'); return; }
+  if (NET.team) await leaveTeam();
+  try {
+    const team = await NET.room.join('team-' + code);
+    NET.team = team; NET.code = code; NET.joinedAt = Date.now();
+    NET.unsubs.push(team.onPeers(onTeamPeers, () => { teamMsg('Verbindung zum Team verloren.'); dropTeam(); }));
+    netLobbyChanged();
+    teamMsg('');
+  } catch (e) {
+    teamMsg(e && e.code === 'not_permitted' ? 'Team-Spiel ist hier nicht erlaubt.' : 'Beitreten hat nicht geklappt. Versuch es nochmal.');
+  }
+  refreshTeamUI();
+}
+async function leaveTeam() {
+  const t = NET.team;
+  dropTeam();
+  if (t) try { await t.leave(); } catch (e) {}
+  refreshTeamUI();
+}
+function dropTeam() {
+  NET.unsubs.forEach(u => { try { u(); } catch (e) {} }); NET.unsubs = [];
+  NET.team = null; NET.code = ''; NET.members = []; NET.hostPeer = '';
+  if (G && G.net === 'client') abortNetGame('Du hast das Team verlassen.');
+  if (G && G.net === 'host') { G.net = null; for (const b of G.brawlers) b.peer = null; }
+  refreshLobby(); refreshTeamUI();
+}
+// my lobby info, shared with the team
+function netLobbyChanged() {
+  if (!NET.team) return;
+  const inGame = !!G && !!G.net;
+  const p = { n: save.name.slice(0, 16), b: save.sel, l: save.levels[save.sel], m: save.mode, j: NET.joinedAt, s: inGame ? 'game' : 'lobby' };
+  const key = JSON.stringify(p);
+  if (key === NET.lastLobby) return; // nothing changed: don't re-send (avoids echo loops)
+  NET.lastLobby = key;
+  if (!inGame) Object.assign(p, { g: null, st: null, i: null });
+  NET.team.presence(p).catch(() => {});
+}
+function onTeamPeers(ch) {
+  const peers = ch.peers.filter(p => p.kind === 'viewer');
+  const me = peers.find(p => p.sameTab);
+  if (me) NET.myPeer = me.peer;
+  // members = everyone who published lobby info, oldest first; the oldest is the host
+  const list = peers.filter(p => p.presence && p.presence.n).slice().sort((a, b) => (a.presence.j || 0) - (b.presence.j || 0) || (a.peer < b.peer ? -1 : 1));
+  if (list.length > MAX_TEAM && me && list.indexOf(me) >= MAX_TEAM) { teamMsg('Das Team ist voll (max. 3).'); leaveTeam(); return; }
+  NET.members = list.slice(0, MAX_TEAM);
+  const oldHost = NET.hostPeer;
+  NET.hostPeer = NET.members.length ? NET.members[0].peer : '';
+  const host = NET.members[0];
+  if (host && !isHost()) {
+    // follow the host's event choice
+    const hm = host.presence.m;
+    if (MODE_DEF[hm] && hm !== save.mode) { save.mode = hm; persist(); }
+    const g = host.presence.g;
+    if (g && g.id && g.id !== NET.seenGame && host.presence.s === 'game' && !G) startNetClient(g);
+  }
+  if (G && G.net === 'client') {
+    const h = NET.members.find(m => m.peer === NET.gameHost), g = h && h.presence.g;
+    if (h && g && g.id === NET.gameId) { if (h.presence.st) applySnapshot(h.presence.st); }
+    else if (!G.over) abortNetGame('Der Host hat das Spiel verlassen.');
+  }
+  if (G && G.net === 'host') {
+    // a teammate who left the match is taken over by a bot
+    for (const b of G.brawlers) if (b.peer) {
+      const p = NET.members.find(m => m.peer === b.peer);
+      if (p && p.presence.s === 'game') b.netSeen = true;
+      // gone, back in the lobby, or never arrived within 15 s
+      if (!p || (b.netSeen && p.presence.s !== 'game') || (!b.netSeen && G.t > 15)) { b.peer = null; b.remoteWalk = false; }
+    }
+  }
+  refreshLobby(); refreshTeamUI();
+}
+
+// ---------- host side ----------
+function compactRoster(roster) {
+  return roster.map(r => [BRAWLER_KEYS.indexOf(r.type), r.team, r.name.slice(0, 16), r.lvl, r.x, r.y, r.peer || 0]);
+}
+function expandRoster(c) {
+  return c.map(a => ({ type: BRAWLER_KEYS[a[0]] || 'kira', team: a[1], name: String(a[2]), lvl: a[3], x: a[4], y: a[5], peer: a[6] || null, human: !!a[6] }));
+}
+function netStartAsHost() {
+  const party = NET.members.filter(m => m.peer !== NET.myPeer).map(m => ({
+    peer: m.peer, name: String(m.presence.n || 'Freund').slice(0, 16), type: BR[m.presence.b] ? m.presence.b : 'kira', level: clamp(m.presence.l | 0, 1, MAX_LEVEL),
+  }));
+  newGame(save.mode, save.sel, party);
+  G.net = 'host';
+  G.roster[0].peer = NET.myPeer;
+  G.brawlers[0].human = true;
+  NET.events = []; NET.evId = 0; NET.tileLog = []; NET.tileSeq = 0; NET.snapT = 0; NET.snapK = 0;
+  NET.gameId = newCode();
+  NET.team.presence({ s: 'game', g: { id: NET.gameId, mode: G.mode, info: { name: G.info.name, seed: G.info.seed, theme: G.info.theme }, ro: compactRoster(G.roster) }, st: null }).catch(() => {});
+  for (const b of G.brawlers) if (b.peer) { b.last = { a: 0, s: 0, g: 0, e: 0 }; }
+}
+function netHostPre(dt) {
+  if (!NET.team) return;
+  for (const b of G.brawlers) {
+    if (!b.peer) continue;
+    const m = NET.members.find(p => p.peer === b.peer), i = m && m.presence.i;
+    if (!i) continue;
+    b.mx = 0; b.my = 0; b.remoteWalk = !!i.w;
+    if (b.alive && !b.leap && !b.knock && typeof i.x === 'number') {
+      // teammates move on their own screen; the host takes their position (kept out of walls)
+      const nx = clamp(i.x, 20, W * T - 20), ny = clamp(i.y, 20, H * T - 20);
+      if (!collidesAt(nx, ny, b.r * 0.6)) { b.x = nx; b.y = ny; }
+    }
+    if (typeof i.a === 'number') b.aim = i.a;
+    const L = b.last || (b.last = { a: 0, s: 0, g: 0, e: 0 });
+    if (i.as > L.a) { L.a = i.as; tryAttack(b, i.aa, i.ad); }
+    if (i.ss > L.s) { L.s = i.ss; trySuper(b, i.sa, i.sd); }
+    if (i.gs > L.g) { L.g = i.gs; tryGadget(b); }
+    if (i.es > L.e) { L.e = i.es; b.emote = { e: EMOTES[i.ek] || '😀', t: 2 }; }
+  }
+}
+function netHostPost(dt) {
+  if (!NET.team) return;
+  NET.snapT -= dt;
+  if (NET.snapT > 0) return;
+  NET.snapT = 1 / 15;
+  NET.team.presence({ st: buildSnapshot() }).catch(() => {});
+}
+function buildSnapshot() {
+  const st = {
+    k: ++NET.snapK, t: r1(G.t),
+    b: G.brawlers.map(b => [Math.round(b.x), Math.round(b.y), Math.ceil(b.hp), b.maxHp, Math.round(b.aim * 100),
+      (b.alive ? 1 : 0) | (b.leap ? 2 : 0) | (b.knock ? 4 : 0) | (b.inBush ? 8 : 0) | (b.revealT > 0 ? 16 : 0) | (b.slow > 0 ? 32 : 0) | (b.walkT > 0 ? 64 : 0),
+      Math.round(b.ammo * 10), Math.round(b.superCharge * 100), b.cubes, b.gems, Math.ceil(b.respawnT * 10), b.rank || 0, b.gadgets,
+      b.emote ? EMOTES.indexOf(b.emote.e) + 1 : 0]),
+    gs: Math.round(G.gasInset), sc: G.score, rd: G.round, rt: r1(G.roundT), rs: r1(G.resetT), tl: r1(G.timeLeft),
+    cd: G.countdown == null ? -1 : r1(G.countdown), ct: G.cdTeam, gm: r1(G.gemT), mg: G.mapGen || 0,
+    pk: G.pickups.slice(0, 30).map(k => [k.type === 'cube' ? 0 : 1, Math.round(k.x), Math.round(k.y)]),
+    pt: G.pets.map(p => [Math.round(p.x), Math.round(p.y), Math.ceil(p.hp), p.maxHp, p.team, Math.round(p.aim * 100), p.owner.idx]),
+    bx: [], tg: NET.tileLog.slice(-25), ev: NET.events,
+    hs: G.brawlers.filter(b => b.human).map(b => [b.idx, b.st.kills, Math.round(b.st.damage), b.st.cubes, b.st.gems, b.st.super]),
+    ov: G.over ? G.finalRank : 0,
+    ms: G.msg && G.msg.text !== 'K.O.!' ? [G.msg.text, G.msg.small ? 1 : 0, r1(G.msg.t)] : 0,
+  };
+  if (G.ball) { const bl = G.ball; st.bl = [Math.round(bl.x), Math.round(bl.y), Math.round(bl.z), bl.carrier ? bl.carrier.idx : -1]; }
+  for (let i = 0; i < tileHp.length; i++) if (tiles[i] === 4 && tileHp[i] < BOX_HP) st.bx.push([i, Math.ceil(tileHp[i])]);
+  const proj = [];
+  for (const p of G.proj) {
+    if (p.lob) proj.push([1, Math.round(p.sx), Math.round(p.sy), Math.round(p.tx), Math.round(p.ty), r1(p.t), r1(p.dur), KINDS.indexOf(p.kind), Math.round(p.radius), p.h, p.team]);
+    else proj.push([0, Math.round(p.x), Math.round(p.y), Math.round(p.ang * 100), Math.round(Math.hypot(p.vx, p.vy)), KINDS.indexOf(p.kind), colorIdx(p.color), Math.round(p.r), p.team, Math.round(p.range - p.dist)]);
+  }
+  st.p = proj;
+  // stay inside the 4 KiB presence limit: drop projectiles first, then older events
+  while (JSON.stringify(st).length > 3500 && st.p.length) st.p.pop();
+  while (JSON.stringify(st).length > 3500 && st.ev.length > 3) st.ev = st.ev.slice(1);
+  return st;
+}
+
+// ---------- client side ----------
+function startNetClient(g) {
+  NET.seenGame = g.id;
+  const roster = expandRoster(g.ro || []);
+  const myIdx = roster.findIndex(r => r.peer === NET.myPeer);
+  if (myIdx < 0 || !MODE_DEF[g.mode] || !g.info) return; // not part of this match
+  g.info = { name: String(g.info.name || 'Karte').slice(0, 30), seed: g.info.seed | 0, theme: THEMES[g.info.theme] ? g.info.theme : 'night' };
+  NET.gameHost = NET.hostPeer;
+  clearInterval(matchTimer);
+  sticks.move = sticks.atk = sticks.sup = null; mouse.down = false;
+  setupGame(g.mode, g.info, roster, myIdx);
+  G.net = 'client'; NET.gameId = g.id; NET.lastSnapK = -1; NET.lastEv = 0; NET.tileSeen = 0; NET.seq = { a: 0, s: 0, g: 0, e: 0 };
+  G.localCD = 0; G.mapGenSeen = 0;
+  netLobbyChanged();
+  showVs(() => {});
+}
+function abortNetGame(msg) {
+  if (!G || G.net !== 'client') return;
+  G = null; $('exitBtn').style.display = 'none';
+  refreshLobby(); show('lobby'); teamMsg(msg); toast(msg);
+  netLobbyChanged();
+}
+function netAction(kind, ang, d) {
+  if (!G || !player.alive) return false;
+  if (kind === 'a') { if (G.localCD > 0 || player.ammo < 1) return false; G.localCD = 0.33; player.ammo -= 1; }
+  if (kind === 's') player.superCharge = 0;
+  if (kind === 'g') { if (G.localCD > 0) return false; player.gadgets--; }
+  NET.seq[kind]++;
+  NET.last[kind] = [Math.round(ang * 1000) / 1000, Math.round(d)];
+  player.aim = kind === 'g' || kind === 'e' ? player.aim : ang;
+  NET.sendT = 0; // send right away
+  return true;
+}
+function netSendInput(dt) {
+  NET.sendT -= dt;
+  if (NET.sendT > 0 || !NET.team) return;
+  NET.sendT = 1 / 20;
+  const p = player, a = NET.last.a || [0, 0], s = NET.last.s || [0, 0];
+  NET.team.presence({ i: { x: Math.round(p.x), y: Math.round(p.y), a: Math.round(p.aim * 1000) / 1000, w: p.walkT > 0 ? 1 : 0,
+    as: NET.seq.a, aa: a[0], ad: a[1], ss: NET.seq.s, sa: s[0], sd: s[1], gs: NET.seq.g, es: NET.seq.e, ek: NET.last.e ? NET.last.e[0] : 0 } }).catch(() => {});
+}
+function applySnapshot(st) {
+  if (!G || G.net !== 'client' || !st || st.k === NET.lastSnapK) return;
+  NET.lastSnapK = st.k;
+  if ((st.mg || 0) !== G.mapGenSeen) { // knockout: fresh map for the new round
+    G.mapGenSeen = st.mg || 0; RNG = mulberry32(G.info.seed); genMap(G.mode); RNG = Math.random;
+  }
+  st.b.forEach((a, i) => {
+    const b = G.brawlers[i]; if (!b) return;
+    const wasAlive = b.alive, flags = a[5];
+    b.alive = !!(flags & 1); b.leap = (flags & 2) ? { t: 0.3, dur: 0.6 } : null; b.netLock = !!(flags & 6);
+    b.inBush = !!(flags & 8); b.revealT = (flags & 16) ? 0.3 : 0; b.slow = (flags & 32) ? 0.3 : 0;
+    if (b !== player) b.walkT = (flags & 64) ? (b.walkT || 0.01) : 0;
+    if (a[2] < b.hp && b.alive && wasAlive && (b === player || canSee(player.team, b))) floatText(b.x, b.y - 50, b.hp - a[2], b === player ? '#ff4b4b' : '#ffdf5e');
+    if (a[2] < b.hp) b.flash = 0.12;
+    b.hp = a[2]; b.maxHp = a[3];
+    b.nx = a[0]; b.ny = a[1];
+    if (b !== player) b.aim = a[4] / 100;
+    if (b === player) {
+      // my own position is mine, unless the host moved me (respawn, knockback, jump) or we drifted apart
+      if (b.netLock || !wasAlive || Math.hypot(a[0] - b.x, a[1] - b.y) > 220) { b.x = a[0]; b.y = a[1]; }
+      if (G.localCD <= 0) b.ammo = a[6] / 10;
+      b.superCharge = a[7] / 100; b.gadgets = a[12];
+    } else if (!wasAlive || Math.hypot(a[0] - b.x, a[1] - b.y) > 300) { b.x = a[0]; b.y = a[1]; }
+    else b.superCharge = a[7] / 100;
+    b.cubes = a[8]; b.gems = a[9]; b.respawnT = a[10] / 10; b.rank = a[11];
+    if (a[13] && b !== player && (!b.emote || b.emote.e !== EMOTES[a[13] - 1])) b.emote = { e: EMOTES[a[13] - 1], t: 2 };
+  });
+  G.gasInset = st.gs; G.score = st.sc; G.round = st.rd; G.roundT = st.rt; G.resetT = st.rs; G.timeLeft = st.tl;
+  G.countdown = st.cd < 0 ? null : st.cd; G.cdTeam = st.ct; G.gemT = st.gm;
+  const tg = [0, 0]; for (const b of G.brawlers) tg[b.team] = (tg[b.team] || 0) + b.gems; G.teamGems = tg;
+  G.pickups = st.pk.map(k => ({ type: k[0] ? 'gem' : 'cube', x: k[1], y: k[2], t: 1 }));
+  G.pets = st.pt.map(q => ({ isPet: true, x: q[0], y: q[1], hp: q[2], maxHp: q[3], team: q[4], aim: q[5] / 100, owner: G.brawlers[q[6]] || player,
+    r: 30, alive: true, revealT: 0, flash: 0, walkT: 0, bite: 0, inBush: tileAtPx(q[0], q[1]) === 2 }));
+  for (let i = 0; i < tileHp.length; i++) if (tiles[i] === 4) tileHp[i] = BOX_HP;
+  for (const [i, hp] of st.bx) tileHp[i] = hp;
+  for (const [sq, i] of st.tg) if (sq > NET.tileSeen) {
+    NET.tileSeen = sq;
+    if (tiles[i]) { const tx = i % W, ty = (i / W) | 0; for (let k = 0; k < 8; k++) particle(tx * T + T / 2, ty * T + T / 2, '#b8692f', 260, 0.5, 7); tiles[i] = 0; }
+  }
+  for (const e of st.ev) if (e[0] > (NET.lastEv || 0)) {
+    NET.lastEv = e[0];
+    if (e[1] === 'b') { if (e[7]) boom(e[2], e[3], e[4], PALETTE[e[5]], true); else G.booms.push({ x: e[2], y: e[3], r: e[4], t: 0, life: e[6] / 100, color: PALETTE[e[5]] }); }
+    if (e[1] === 'k') {
+      const a = G.brawlers[e[2]] || null, v = G.brawlers[e[3]];
+      if (v) { G.feed.unshift({ a, b: v, t: 4 }); if (G.feed.length > 4) G.feed.length = 4; for (let i = 0; i < 18; i++) particle(v.x, v.y, pick([v.d.color, v.d.dark, '#fff']), 320, .8, 9); }
+      if (a === player) G.msg = { text: 'K.O.!', t: 1.1, small: true };
+    }
+  }
+  G.proj = st.p.map(q => q[0]
+    ? { lob: true, sx: q[1], sy: q[2], x: q[1], y: q[2], tx: q[3], ty: q[4], t: q[5], dur: q[6], kind: KINDS[q[7]], radius: q[8], h: q[9], team: q[10], z: 0 }
+    : { x: q[1], y: q[2], ang: q[3] / 100, sp: q[4], kind: KINDS[q[5]], color: PALETTE[q[6]], r: q[7], team: q[8], left: q[9] });
+  if (st.bl && G.ball) { const bl = G.ball; bl.nx = st.bl[0]; bl.ny = st.bl[1]; bl.z = st.bl[2]; bl.carrier = st.bl[3] >= 0 ? G.brawlers[st.bl[3]] : null; if (Math.hypot(bl.nx - bl.x, bl.ny - bl.y) > 300) { bl.x = bl.nx; bl.y = bl.ny; } }
+  for (const h of st.hs) { const b = G.brawlers[h[0]]; if (b) Object.assign(b.st, { kills: h[1], damage: h[2], cubes: h[3], gems: h[4], super: h[5] }); }
+  if (st.ms && (!G.msg || G.msg.text !== st.ms[0])) G.msg = { text: st.ms[0], small: !!st.ms[1], t: st.ms[2] };
+  if (st.ov && !G.over) { G.over = true; G.finalRank = st.ov; G.endT = 2.2; }
+}
+function updateClient(dt) {
+  G.t += dt; G.localCD -= dt;
+  updatePlayer(dt);
+  const b = player;
+  if (b.alive && !b.netLock) {
+    let mx = b.mx, my = b.my; const m = Math.hypot(mx, my);
+    if (m > 1) { mx /= m; my /= m; }
+    const sp = b.d.speed * (b.slow > 0 ? 0.55 : 1);
+    moveUnit(b, mx * sp * dt, my * sp * dt);
+    if (m > 0.1) b.walkT += dt; else b.walkT = 0;
+    b.inBush = tileAtPx(b.x, b.y) === 2;
+  }
+  const k = Math.min(1, dt * 12);
+  for (const o of G.brawlers) if (o !== player && o.nx != null) { o.x += (o.nx - o.x) * k; o.y += (o.ny - o.y) * k; if (o.walkT) o.walkT += dt; }
+  if (G.ball && G.ball.nx != null) { G.ball.x += (G.ball.nx - G.ball.x) * k; G.ball.y += (G.ball.ny - G.ball.y) * k; }
+  for (const p of G.proj) {
+    if (p.lob) { p.t = Math.min(p.dur, p.t + dt); const q = p.t / p.dur; p.x = p.sx + (p.tx - p.sx) * q; p.y = p.sy + (p.ty - p.sy) * q; p.z = Math.sin(q * Math.PI) * p.h; }
+    else if (p.left > 0) { const s = p.sp * dt; p.x += Math.cos(p.ang) * s; p.y += Math.sin(p.ang) * s; p.left -= s; }
+  }
+  G.proj = G.proj.filter(p => p.lob || p.left > 0);
+  for (const o of G.brawlers) { o.flash -= dt; if (o.emote && (o.emote.t -= dt) <= 0) o.emote = null; }
+  updateEffects(dt);
+  updateCamera(dt);
+  netSendInput(dt);
+  if (G.over) { G.endT -= dt; if (G.endT <= 0 && !G.resultShown) showResult(); }
+}
+
+// ---------- team UI ----------
+function teamMsg(m) { const el = $('teamMsg'); if (el) el.textContent = m || ''; }
+let toastT = null;
+function toast(m) {
+  const el = $('toast'); if (!el) return;
+  el.textContent = m; el.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => { el.hidden = true; }, 3200);
+}
+function refreshTeamUI() {
+  const el = $('teamBody'); if (!el) return;
+  const slots = [$('slotL'), $('slotR')];
+  const others = NET.members.filter(m => m.peer !== NET.myPeer);
+  slots.forEach((s, i) => {
+    const m = others[i];
+    if (!m) { s.className = 'pslot add tile'; s.innerHTML = '<span>+</span>'; return; }
+    s.className = 'pslot mate';
+    s.innerHTML = `<canvas width="160" height="160"></canvas><div class="txt mateName"></div>`;
+    s.querySelector('.mateName').textContent = (m.peer === NET.hostPeer ? '★ ' : '') + String(m.presence.n || 'Freund');
+    drawIcon(s.querySelector('canvas'), BR[m.presence.b] ? m.presence.b : 'kira', 1.5);
+  });
+  if (!NET.ready) { el.innerHTML = '<p class="teamNote">Verbinde …</p>'; return; }
+  if (!NET.room) {
+    el.innerHTML = `<p class="teamNote">Team-Spiel funktioniert nur im Claude-Link, wenn du angemeldet bist und das Spiel mit dir geteilt wurde.
+      Öffne das Spiel über den Link von Jonified und melde dich an.</p>`;
+    return;
+  }
+  if (!NET.team) {
+    el.innerHTML = `<button id="teamCreate" class="btn btn-yellow txt">TEAM ERSTELLEN</button>
+      <div class="joinRow"><label for="teamCode" class="txt">Team-Code</label><input id="teamCode" maxlength="12" autocomplete="off" placeholder="z. B. k3v6q2">
+      <button id="teamJoin" class="btn btn-blue txt">BEITRETEN</button></div>`;
+    $('teamCreate').onclick = () => joinTeam(newCode());
+    $('teamJoin').onclick = () => joinTeam($('teamCode').value);
+    return;
+  }
+  const rows = NET.members.map(m => `<li class="txt">${m.peer === NET.hostPeer ? '★' : '•'} <span></span> <small>${BR[m.presence.b] ? BR[m.presence.b].name : ''}${m.presence.s === 'game' ? ' · im Spiel' : ''}</small></li>`).join('');
+  el.innerHTML = `<div class="codeBox txt">CODE: <b id="teamCodeShow"></b> <button id="copyCode" class="btn btn-blue txt">KOPIEREN</button></div>
+    <p class="teamNote">Schick den Code deinen Freunden. Sie öffnen das Spiel, tippen auf „+“ und geben den Code ein.</p>
+    <ul class="members">${rows || '<li class="txt">Verbinde …</li>'}</ul>
+    <p class="teamNote">${isHost() ? 'Du bist der Host: Wähl einen Modus und drück SPIELEN.' : 'Der Host (★) wählt den Modus und startet das Spiel.'}</p>
+    <button id="teamLeave" class="btn btn-red txt">TEAM VERLASSEN</button>`;
+  $('teamCodeShow').textContent = NET.code;
+  el.querySelectorAll('.members li span').forEach((s, i) => { s.textContent = String(NET.members[i].presence.n || 'Freund'); });
+  $('copyCode').onclick = () => {
+    const done = () => { $('copyCode').textContent = 'KOPIERT!'; };
+    try { navigator.clipboard.writeText(NET.code).then(done, () => {}); } catch (e) {}
+  };
+  $('teamLeave').onclick = () => leaveTeam();
+}
+
+canPickMode = k => {
+  if (inTeam() && !isHost()) { toast('Nur der Host (★) wählt den Modus.'); return false; }
+  return true;
+};
+
+// =====================================================================
 //  Loop
 // =====================================================================
 let last = performance.now();
 function frame(ts) {
   const dt = Math.min(0.05, (ts - last) / 1000); last = ts;
   if (G) {
-    if (!G.paused) update(dt);
-    render();
+    if (!G.paused) (G.net === 'client' ? updateClient : update)(dt);
+    if (G) render();
   } else if ($('lobby').classList.contains('show')) {
     drawPreview(ts / 1000);
   }

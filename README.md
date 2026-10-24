@@ -20,7 +20,20 @@ https://raw.githack.com/realJonified/Brawl-Stars/ccr-3aefd39f-tq7u8o/index.html
 ## Spielmodi
 
 - **💀 Showdown** – 10 Brawler, nur einer überlebt. Zerstöre Kisten für Power-Würfel (mehr Leben & Schaden) und pass auf das Giftgas auf, das sich von außen zusammenzieht.
+- **👥 Duo-Showdown** – 5 Teams zu zweit. Fällt dein Partner, kommt er nach 10 Sekunden zurück, solange du lebst.
+- **🔱 Trio-Showdown** – 4 Teams zu dritt.
 - **💎 Juwelenjagd** – 3 gegen 3. Aus der Mine in der Mitte kommen Juwelen. Hält dein Team 10 Juwelen, bis der 15-Sekunden-Countdown abläuft, gewinnt ihr.
+- **⚽ Brawl Ball** – 3 gegen 3. Lauf über den Ball, um ihn aufzunehmen, Angriff schießt, Super schießt extra stark. 2 Tore gewinnen.
+- **🎯 Knockout** – 3 gegen 3 ohne Wiederbeleben, Best of 3 Runden. Nach 35 Sekunden kommt Giftgas.
+
+## 👥 Mit Freunden spielen (Team-Code)
+
+1. Tippe in der Lobby auf **„+“** neben deinem Brawler → **TEAM ERSTELLEN**.
+2. Schick den angezeigten **Code** an deine Freunde (bis zu 2).
+3. Sie öffnen das Spiel, tippen auf **„+“**, geben den Code ein und drücken **BEITRETEN**.
+4. Der Host (★) wählt den Modus (Duo, Trio, Juwelenjagd, Brawl Ball oder Knockout) und drückt **SPIELEN**. Freie Plätze füllen Bots.
+
+Team-Spiel funktioniert nur über den Claude-Link (🎮 oben) für Leute, die angemeldet sind und mit denen das Spiel geteilt wurde. Auf GitHub Pages oder über einen öffentlichen Link gibt es nur Spiele gegen Bots.
 
 ## Brawler
 
