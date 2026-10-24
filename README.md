@@ -33,7 +33,9 @@ https://raw.githack.com/realJonified/Brawl-Stars/ccr-3aefd39f-tq7u8o/index.html
 3. Sie öffnen das Spiel, tippen auf **„+“**, geben den Code ein und drücken **BEITRETEN**.
 4. Der Host (★) wählt den Modus (Duo, Trio, Juwelenjagd, Brawl Ball oder Knockout) und drückt **SPIELEN**. Freie Plätze füllen Bots.
 
-Team-Spiel funktioniert nur über den Claude-Link (🎮 oben) für Leute, die angemeldet sind und mit denen das Spiel geteilt wurde. Auf GitHub Pages oder über einen öffentlichen Link gibt es nur Spiele gegen Bots.
+**Ohne Anmeldung:** Nehmt die GitHub-Version (👉 github.io-Link oder den githack-Link oben). Dort verbinden sich die Geräte direkt miteinander (WebRTC über PeerJS), niemand braucht ein Konto. Alle müssen dieselbe Version benutzen.
+
+**Im Claude-Link (🎮)** läuft das Team-Spiel über Claude. Dafür müssen alle angemeldet sein, und das Spiel muss mit ihnen geteilt sein.
 
 ## Brawler
 

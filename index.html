@@ -258,6 +258,7 @@
   <button class="btn btn-red txt closeX" data-close="newsSel">✕</button>
   <h1 class="txt">NEWS</h1>
   <div class="news">
+    <p><b class="txt">OHNE ANMELDUNG</b> In der GitHub-Version (realjonified.github.io/Brawl-Stars) klappt das Team-Spiel auch ohne Konto: Die Geräte verbinden sich direkt miteinander.</p>
     <p><b class="txt">MULTIPLAYER-UPDATE!</b> Spiel mit bis zu 2 Freunden: Tipp auf „+“ neben deinem Brawler, erstell ein Team und schick den Code. Neue Modi: Duo-Showdown, Trio-Showdown, Brawl Ball und Knockout.</p>
     <p><b class="txt">NEUE LOBBY!</b> Shop, Quests, Tägliche Siege, Spieler-Level und dein eigener Name.</p>
     <p><b class="txt">MAP-ROTATION</b> Jede Stunde gibt es neue Karten für Showdown und Juwelenjagd.</p>
@@ -2580,18 +2581,118 @@ function newCode() {
   let c = ''; for (let i = 0; i < 6; i++) c += abc[Math.floor(Math.random() * abc.length)];
   return c;
 }
-async function joinTeam(code) {
+// ---------- team play without an account: direct browser-to-browser (PeerJS / WebRTC) ----------
+// Used where the Claude room is not available (GitHub version, not signed in). The team creator's
+// browser is the hub: everyone connects to it, and it forwards each member's presence to the others.
+// It offers the same calls as a Claude named room (presence / onPeers / leave), so the rest of the
+// team code does not care which one is in use.
+const P2P_PREFIX = 'brawlarena-team-';
+function loadPeerJs() {
+  return new Promise((res, rej) => {
+    if (window.Peer) return res();
+    const sc = document.createElement('script');
+    sc.src = 'https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js';
+    sc.onload = () => res(); sc.onerror = () => rej({ code: 'no_p2p' });
+    document.head.appendChild(sc);
+  });
+}
+async function p2pRoom(code, isHub) {
+  await loadPeerJs();
+  const peer = new Peer(isHub ? P2P_PREFIX + code : undefined, { debug: 0 });
+  try { return await p2pConnect(peer, code, isHub); } catch (e) { try { peer.destroy(); } catch (x) {} throw e; }
+}
+async function p2pConnect(peer, code, isHub) {
+  await new Promise((res, rej) => {
+    const to = setTimeout(() => rej({ code: 'timeout' }), 12000);
+    peer.on('open', () => { clearTimeout(to); res(); });
+    peer.on('error', e => { clearTimeout(to); rej({ code: e && e.type }); });
+  });
+  const myId = peer.id, others = new Map(); // id -> { presence, j }
+  let mine = {}, myJ = isHub ? Date.now() : 0, handlers = [], errHandlers = [], conns = new Map(), hubConn = null, closed = false, fireT = null;
+  const list = () => [{ peer: myId, isMe: true, sameTab: true, kind: 'viewer', guest: false, by: null, presence: Object.assign({}, mine, myJ ? { j: myJ } : {}) },
+    ...[...others].map(([id, v]) => ({ peer: id, isMe: false, sameTab: false, kind: 'viewer', guest: false, by: null, presence: Object.assign({}, v.presence, { j: v.j }) }))];
+  const fire = () => { if (fireT) return; fireT = setTimeout(() => { fireT = null; if (closed) return; const ps = list(); handlers.forEach(h => h({ peers: ps, joined: [], left: [], updated: ps })); }, 0); };
+  const fail = () => { if (closed) return; closed = true; errHandlers.forEach(h => h({ code: 'upstream_error', message: 'connection lost' })); try { peer.destroy(); } catch (e) {} };
+  const sendAll = msg => { for (const c of conns.values()) if (c.open) try { c.send(msg); } catch (e) {} };
+  if (isHub) {
+    peer.on('connection', c => {
+      c.on('open', () => {
+        if (conns.size >= MAX_TEAM - 1) { try { c.send({ t: 'full' }); } catch (e) {} setTimeout(() => c.close(), 300); return; }
+        conns.set(c.peer, c);
+        c.send({ t: 'pp', id: myId, p: mine, j: myJ });
+        for (const [id, v] of others) c.send({ t: 'pp', id, p: v.presence, j: v.j });
+      });
+      c.on('data', m => {
+        if (!m || m.t !== 'p' || typeof m.p !== 'object') return;
+        const v = others.get(c.peer) || { j: Date.now() }; // join order is the hub's own clock, so the host is clear
+        v.presence = m.p; others.set(c.peer, v);
+        sendAll({ t: 'pp', id: c.peer, p: m.p, j: v.j });
+        fire();
+      });
+      const gone = () => { conns.delete(c.peer); if (others.delete(c.peer)) { sendAll({ t: 'gone', id: c.peer }); fire(); } };
+      c.on('close', gone); c.on('error', gone);
+    });
+    peer.on('disconnected', () => { try { peer.reconnect(); } catch (e) {} });
+  } else {
+    hubConn = peer.connect(P2P_PREFIX + code, { reliable: true });
+    await new Promise((res, rej) => {
+      const to = setTimeout(() => rej({ code: 'not_found' }), 10000);
+      hubConn.on('open', () => { clearTimeout(to); res(); });
+      peer.on('error', e => { clearTimeout(to); rej({ code: e && e.type === 'peer-unavailable' ? 'not_found' : e && e.type }); });
+    });
+    hubConn.on('data', m => {
+      if (!m) return;
+      if (m.t === 'full') { teamMsg('Das Team ist voll (max. 3).'); fail(); return; }
+      if (m.t === 'pp' && typeof m.p === 'object') { if (m.id === myId) myJ = m.j; else others.set(m.id, { presence: m.p, j: m.j }); fire(); }
+      if (m.t === 'gone') { others.delete(m.id); fire(); }
+    });
+    hubConn.on('close', fail); hubConn.on('error', fail);
+  }
+  let sendT = null;
+  return {
+    name: 'team-' + code,
+    presence(patch) {
+      for (const k in patch) { if (patch[k] === null) delete mine[k]; else mine[k] = patch[k]; }
+      if (!sendT) sendT = setTimeout(() => { // coalesce to ~30 messages a second
+        sendT = null; if (closed) return;
+        if (isHub) sendAll({ t: 'pp', id: myId, p: mine, j: myJ });
+        else if (hubConn && hubConn.open) try { hubConn.send({ t: 'p', p: mine }); } catch (e) {}
+      }, 33);
+      fire();
+      return Promise.resolve();
+    },
+    onPeers(h, onErr) { handlers.push(h); if (onErr) errHandlers.push(onErr); fire(); return () => { handlers = handlers.filter(x => x !== h); }; },
+    peers: list,
+    async leave() { closed = true; try { peer.destroy(); } catch (e) {} },
+  };
+}
+
+async function joinTeam(code, create) {
   code = String(code || '').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 12);
-  if (!NET.room || code.length < 4) { teamMsg('Ungültiger Code.'); return; }
+  if (code.length < 4) { teamMsg('Ungültiger Code.'); return; }
   if (NET.team) await leaveTeam();
+  teamMsg('Verbinde …');
   try {
-    const team = await NET.room.join('team-' + code);
+    let team;
+    if (NET.room) team = await NET.room.join('team-' + code);
+    else {
+      try { team = await p2pRoom(code, !!create); }
+      catch (e) {
+        if (create && e && e.code === 'unavailable-id') { code = newCode(); team = await p2pRoom(code, true); } // code taken: pick another
+        else throw e;
+      }
+    }
     NET.team = team; NET.code = code; NET.joinedAt = Date.now();
     NET.unsubs.push(team.onPeers(onTeamPeers, () => { teamMsg('Verbindung zum Team verloren.'); dropTeam(); }));
     netLobbyChanged();
     teamMsg('');
   } catch (e) {
-    teamMsg(e && e.code === 'not_permitted' ? 'Team-Spiel ist hier nicht erlaubt.' : 'Beitreten hat nicht geklappt. Versuch es nochmal.');
+    const c = e && e.code;
+    teamMsg(c === 'not_permitted' ? 'Team-Spiel ist hier nicht erlaubt.'
+      : c === 'not_found' ? 'Kein Team mit diesem Code gefunden. Ist der Code richtig und das Spiel beim Host offen?'
+      : c === 'no_p2p' || c === 'network' || c === 'server-error' || c === 'socket-error' || c === 'timeout'
+        ? (window.claude ? 'Ohne Anmeldung geht Team-Spiel nur in der GitHub-Version: realjonified.github.io/Brawl-Stars' : 'Keine Verbindung zum Team-Server. Prüf dein Internet und versuch es nochmal.')
+      : 'Beitreten hat nicht geklappt. Versuch es nochmal.');
   }
   refreshTeamUI();
 }
@@ -2875,16 +2976,11 @@ function refreshTeamUI() {
     drawIcon(s.querySelector('canvas'), BR[m.presence.b] ? m.presence.b : 'kira', 1.5);
   });
   if (!NET.ready) { el.innerHTML = '<p class="teamNote">Verbinde …</p>'; return; }
-  if (!NET.room) {
-    el.innerHTML = `<p class="teamNote">Team-Spiel funktioniert nur im Claude-Link, wenn du angemeldet bist und das Spiel mit dir geteilt wurde.
-      Öffne das Spiel über den Link von Jonified und melde dich an.</p>`;
-    return;
-  }
   if (!NET.team) {
     el.innerHTML = `<button id="teamCreate" class="btn btn-yellow txt">TEAM ERSTELLEN</button>
       <div class="joinRow"><label for="teamCode" class="txt">Team-Code</label><input id="teamCode" maxlength="12" autocomplete="off" placeholder="z. B. k3v6q2">
       <button id="teamJoin" class="btn btn-blue txt">BEITRETEN</button></div>`;
-    $('teamCreate').onclick = () => joinTeam(newCode());
+    $('teamCreate').onclick = () => joinTeam(newCode(), true);
     $('teamJoin').onclick = () => joinTeam($('teamCode').value);
     return;
   }
